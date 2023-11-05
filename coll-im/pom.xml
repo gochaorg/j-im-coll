@@ -17,7 +17,7 @@
 
     <groupId>xyz.cofe</groupId>
     <artifactId>coll-im</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <developers>
         <developer>
@@ -105,6 +105,16 @@
                     <source>17</source>
                     <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>javadoc</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Архив исходников -->

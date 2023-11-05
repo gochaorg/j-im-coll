@@ -70,4 +70,15 @@ public interface PositionalRead<A>
         each(lst::add);
         return lst;
     }
+
+    /**
+     * Возвращает иммутабельный список
+     * @return иммутабельный список
+     */
+    @SuppressWarnings("unchecked")
+    default ImList<A> toImList(){
+        ImList<A>[] lst = new ImList[]{ImList.<A>of() };
+        each( a -> lst[0] = lst[0].prepend(a));
+        return lst[0].reverse();
+    }
 }

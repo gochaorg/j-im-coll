@@ -53,9 +53,6 @@ public abstract class ImListLinkedBase<A>
      * @return список
      */
     protected abstract <B> ImListLinkedBase<B> selfConstructor(B value, ImListLinkedBase<B> next);
-//    {
-//        return new ImListLinkedBase<>(value,next);
-//    }
 
     @Override
     public ImListLinkedBase<A> empty() {
@@ -209,10 +206,16 @@ public abstract class ImListLinkedBase<A>
         return (ImListLinkedBase<A>) res[0];
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public ImListLinkedBase<A> prepend(PositionalRead<A> values) {
+    public ImList<A> prepend(PositionalRead<A> values) {
         if (values == null) throw new IllegalArgumentException("values==null");
+        return values.toImList().append(this);
+    }
+
+    //@Override
+    public ImList<A> prependUnordered(PositionalRead<A> values) {
+        if (values == null) throw new IllegalArgumentException("values==null");
+
         Object[] res = new Object[]{this};
         values.each(a -> {
             var r = (ImListLinkedBase<A>) res[0];
@@ -249,5 +252,10 @@ public abstract class ImListLinkedBase<A>
     @Override
     public Iterator<A> iterator() {
         return new ImListLinkedIterator<>(this);
+    }
+
+    @Override
+    public ImList<A> toImList() {
+        return this;
     }
 }
