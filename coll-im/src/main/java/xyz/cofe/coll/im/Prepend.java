@@ -18,7 +18,7 @@ public interface Prepend<SELF,A> {
      * @param values элементы
      * @return список с добавленными элементами
      */
-    SELF prepend(PositionalRead<A> values);
+    SELF prepend(PositionalRead<? extends A> values);
 
     /**
      * Добавление элементов в начало списка,

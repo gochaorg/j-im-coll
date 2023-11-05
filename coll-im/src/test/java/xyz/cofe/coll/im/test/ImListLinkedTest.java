@@ -192,6 +192,24 @@ public class ImListLinkedTest {
         assertTrue(res.get(0).map(b->b.v==2).orElse(false));
     }
 
+    // Отображение элемента на список и затем разглаживание списка
+    // В данном случае удобно, если список не является однородным по элементам
+    @SuppressWarnings("PointlessBooleanExpression")
+    @Test
+    public void split_test_cls(){
+        var lst = ImList.<A>of(new A.B(1), new A.B(2), new A.C(true));
+        var res = lst.split(A.B.class).rightFmap(A.C.class).fold(
+            left -> right -> {
+                return left.size()==2
+                    && left.get(0).map(b -> b.v==1).orElse(false)
+                    && left.get(1).map(b -> b.v==2).orElse(false)
+                    && right.size()==1
+                    && right.get(0).map(c -> c.v==true).orElse(false) ;
+            }
+        );
+        assertTrue(res);
+    }
+
     // Свертка списка с начала к концу
     @Test
     public void foldLeft_test(){

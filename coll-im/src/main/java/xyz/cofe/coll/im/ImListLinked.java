@@ -27,8 +27,8 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
     }
 
     @Override
-    public ImListLinked<A> prepend(PositionalRead<A> values) {
-        return (ImListLinked<A>)super.prepend(values);
+    public ImList<A> prepend(PositionalRead<? extends A> values) {
+        return (ImList<A>)super.prepend(values);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
     }
 
     @Override
-    public ImListLinked<A> append(PositionalRead<A> values) {
+    public ImListLinked<A> append(PositionalRead<? extends A> values) {
         return (ImListLinked<A>)super.append(values);
     }
 

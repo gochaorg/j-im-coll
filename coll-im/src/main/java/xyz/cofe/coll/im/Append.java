@@ -18,5 +18,5 @@ public interface Append<SELF,A> {
      * @param values добавляемые элементы
      * @return список с добавленными элементами
      */
-    SELF append(PositionalRead<A> values);
+    SELF append(PositionalRead<? extends A> values);
 }
