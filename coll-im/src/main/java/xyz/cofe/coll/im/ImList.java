@@ -150,7 +150,7 @@ public interface ImList<A>
         while (true) {
             if (!it_a.hasNext()) break;
             if (!it_b.hasNext()) break;
-            list.prepend(Tuple2.of(it_a.next(), it_b.next()));
+            list = list.prepend(Tuple2.of(it_a.next(), it_b.next()));
         }
 
         return list.reverse();
@@ -171,11 +171,21 @@ public interface ImList<A>
         )._2();
     }
 
-//    default ImList<A> skip(long count){
-//        if( count<0 )throw new IllegalArgumentException("count<0");
-//        if( count==0 )return this;
-//
-//        //return fold
-//
-//    }
+    default ImList<A> skip(long count){
+        if( count<0 )throw new IllegalArgumentException("count<0");
+        if( count==0 )return this;
+
+        long size = size();
+        if( count>=size )return empty();
+
+        long takeCount = size - count;
+
+        return foldRight(
+            Tuple2.of(takeCount, empty()),
+            (tup, it) ->
+                tup._1() > 0
+                    ? Tuple2.of(tup._1()-1, tup._2().prepend(it))
+                    : tup
+        )._2();
+    }
 }

@@ -1,12 +1,13 @@
 package xyz.cofe.coll.im;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Кортеж из одного элемента
  * @param <A> Тип элемента
  */
-public interface Tuple1<A> extends Serializable {
+public sealed interface Tuple1<A> extends Serializable {
     /**
      * Возвращает элемент кортежа
      * @return элемент
@@ -22,12 +23,33 @@ public interface Tuple1<A> extends Serializable {
         return Tuple2.of(_1(),b);
     }
 
+    final class Tuple1Impl<A> implements Tuple1<A> {
+        public final A a;
+
+        public Tuple1Impl(A a){
+            this.a = a;
+        }
+
+        @Override
+        public A _1() {
+            return a;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Tuple1Impl<?> tuple1 = (Tuple1Impl<?>) o;
+            return Objects.equals(a, tuple1.a);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(a);
+        }
+    }
+
     static <A> Tuple1<A> of( A a ) {
-        return new Tuple1<>() {
-            @Override
-            public A _1() {
-                return a;
-            }
-        };
+        return new Tuple1Impl<>(a);
     }
 }

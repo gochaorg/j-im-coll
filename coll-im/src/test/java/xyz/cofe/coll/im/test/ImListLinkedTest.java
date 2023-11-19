@@ -3,6 +3,7 @@ package xyz.cofe.coll.im.test;
 import org.junit.jupiter.api.Test;
 import xyz.cofe.coll.im.ImList;
 import xyz.cofe.coll.im.ImListLinked;
+import xyz.cofe.coll.im.Tuple2;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -314,5 +315,85 @@ public class ImListLinkedTest {
         assertTrue(res.get(0).map(v->v==3).orElse(false));
         assertTrue(res.get(1).map(v->v==2).orElse(false));
         assertTrue(res.get(2).map(v->v==1).orElse(false));
+    }
+
+    @Test
+    public void zip_test(){
+        var res = ImList.of(1,2,3).zip(ImList.of(4,5,6,7));
+        assertTrue(res.size()==3);
+        assertTrue(res.get(0).map(v->v.equals(Tuple2.of(1,4))).orElse(false));
+        assertTrue(res.get(1).map(v->v.equals(Tuple2.of(2,5))).orElse(false));
+        assertTrue(res.get(2).map(v->v.equals(Tuple2.of(3,6))).orElse(false));
+    }
+
+    @Test
+    public void take_test1(){
+        var res = ImList.of(1,2,3).take(2);
+        assertTrue(res.size()==2);
+        assertTrue(res.get(0).map(v->v==1).orElse(false));
+        assertTrue(res.get(1).map(v->v==2).orElse(false));
+    }
+
+    @Test
+    public void take_test2(){
+        var catched = false;
+        try {
+            ImList.of(1, 2, 3).take(-2);
+        } catch (IllegalArgumentException e){
+            catched = true;
+        }
+        assertTrue(catched);
+    }
+
+    @Test
+    public void take_test3(){
+        var res = ImList.of(1,2,3).take(5);
+        assertTrue(res.size()==3);
+        assertTrue(res.get(0).map(v->v==1).orElse(false));
+        assertTrue(res.get(1).map(v->v==2).orElse(false));
+        assertTrue(res.get(2).map(v->v==3).orElse(false));
+    }
+
+    @Test
+    public void skip_test1(){
+        var catched = false;
+        try {
+            ImList.of(1, 2, 3).skip(-1);
+        } catch (IllegalArgumentException e){
+            catched = true;
+        }
+        assertTrue(catched);
+    }
+
+    @Test
+    public void skip_test2(){
+        var lst = ImList.of(1,2,3);
+        var res = lst.skip(0);
+        assertTrue(res.size()==3);
+        assertTrue(lst == res);
+    }
+
+    @Test
+    public void skip_test3(){
+        var lst = ImList.of(1,2,3);
+        var res = lst.skip(1);
+        assertTrue(res.size()==2);
+        assertTrue(res.get(0).map(v->v==2).orElse(false));
+        assertTrue(res.get(1).map(v->v==3).orElse(false));
+    }
+
+    @Test
+    public void skip_test4(){
+        var lst = ImList.of(1,2,3);
+        var res = lst.skip(2);
+        assertTrue(res.size()==1);
+        assertTrue(res.get(0).map(v->v==3).orElse(false));
+    }
+
+    @Test
+    public void skip_test5(){
+        var lst = ImList.of(1,2,3);
+        var res = lst.skip(3);
+        assertTrue(res.size()==0);
     }
 }
