@@ -155,4 +155,27 @@ public interface ImList<A>
 
         return list.reverse();
     }
+
+    default ImList<A> take(long count) {
+        if (count < 0) throw new IllegalArgumentException("count<0");
+        if (count == 0) return empty();
+
+        long size = size();
+        if (count >= size) return this;
+
+        long skipCnt = size - count;
+        return foldRight(Tuple2.of(skipCnt, empty()),
+            (tup, it) -> tup._1() > 0
+                ? Tuple2.of(tup._1() - 1, tup._2())
+                : Tuple2.of(tup._1(), tup._2().prepend(it))
+        )._2();
+    }
+
+//    default ImList<A> skip(long count){
+//        if( count<0 )throw new IllegalArgumentException("count<0");
+//        if( count==0 )return this;
+//
+//        //return fold
+//
+//    }
 }
