@@ -140,6 +140,21 @@ public interface ImList<A>
         return toList().stream();
     }
 
+    /**
+     * Сопоставление двух списков в пары.
+     *
+     * <pre>
+     * var res = ImList.of(1,2,3).zip(ImList.of(4,5,6,7));
+     * assertTrue(res.size()==3);
+     * assertTrue(res.get(0).map(v->v.equals(Tuple2.of(1,4))).orElse(false));
+     * assertTrue(res.get(1).map(v->v.equals(Tuple2.of(2,5))).orElse(false));
+     * assertTrue(res.get(2).map(v->v.equals(Tuple2.of(3,6))).orElse(false));
+     * </pre>
+     *
+     * @param other второй список
+     * @return список пар
+     * @param <B> тип элементов второй пары
+     */
     default <B> ImList<Tuple2<A, B>> zip(ImList<B> other) {
         if (other == null) throw new IllegalArgumentException("other==null");
 
@@ -156,6 +171,11 @@ public interface ImList<A>
         return list.reverse();
     }
 
+    /**
+     * Возвращает указанное кол-во элементов или меньше (сколько есть)
+     * @param count кол-во элементов
+     * @return список
+     */
     default ImList<A> take(long count) {
         if (count < 0) throw new IllegalArgumentException("count<0");
         if (count == 0) return empty();
@@ -171,6 +191,11 @@ public interface ImList<A>
         )._2();
     }
 
+    /**
+     * Возвращает элементы, пропуская указанное кол-во с начала
+     * @param count кол-во пропускаемых элементов
+     * @return список
+     */
     default ImList<A> skip(long count){
         if( count<0 )throw new IllegalArgumentException("count<0");
         if( count==0 )return this;
