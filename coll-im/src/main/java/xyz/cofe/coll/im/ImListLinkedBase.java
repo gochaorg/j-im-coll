@@ -111,9 +111,13 @@ public abstract class ImListLinkedBase<A>
         if (isNil()) return Optional.empty();
         var cur = this;
         while (cur != null) {
-            if( cur.next==null ) {
-                if( cur.isNil() )return Optional.empty();
+            if (cur.next == null) {
+                if (cur.isNil()) return Optional.empty();
                 return Optional.ofNullable(cur.value);
+            } else {
+                if( cur.next.isNil() ){
+                    return Optional.ofNullable(cur.value);
+                }
             }
             cur = cur.next;
         }
@@ -194,8 +198,8 @@ public abstract class ImListLinkedBase<A>
     }
 
     public <B> Split<B, A> split(Function<A, Split<B, A>> mapper) {
-        if( mapper==null ) throw new IllegalArgumentException("mapper==null");
-        Split<B,A> res = new FMap.Split<>(
+        if (mapper == null) throw new IllegalArgumentException("mapper==null");
+        Split<B, A> res = new FMap.Split<>(
             ImList.of(),
             ImList.of()
         );
@@ -225,7 +229,7 @@ public abstract class ImListLinkedBase<A>
     @Override
     public ImList<A> prepend(PositionalRead<? extends A> values) {
         if (values == null) throw new IllegalArgumentException("values==null");
-        return values.foldRight((ImList<A>)this, Prepend::prepend);
+        return values.foldRight((ImList<A>) this, Prepend::prepend);
     }
 
     //@Override

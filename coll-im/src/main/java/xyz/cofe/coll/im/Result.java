@@ -1,6 +1,7 @@
 package xyz.cofe.coll.im;
 
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -70,5 +71,11 @@ public final class Result<VALUE,ERROR> {
 
     public Optional<VALUE> toOptional(){
         return getOk();
+    }
+
+    public <R> R fold(Function<VALUE,R> succFold, Function<ERROR,R> errFold){
+        if( succFold==null ) throw new IllegalArgumentException("succFold==null");
+        if( errFold==null ) throw new IllegalArgumentException("errFold==null");
+        return isOk() ? succFold.apply(value) : errFold.apply(error);
     }
 }
