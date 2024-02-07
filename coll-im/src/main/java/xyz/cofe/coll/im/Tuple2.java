@@ -8,7 +8,7 @@ public sealed interface Tuple2<A, B> extends Serializable {
 
     B _2();
 
-    default <RES> RES map(Fn2<RES, A, B> f) {
+    default <RES> RES map(Fn2<A, B, RES> f) {
         if (f == null) throw new IllegalArgumentException("f==null");
         return f.apply(_1(), _2());
     }

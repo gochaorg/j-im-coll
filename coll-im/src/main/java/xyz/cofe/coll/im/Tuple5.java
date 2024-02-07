@@ -10,7 +10,7 @@ public sealed interface Tuple5<A,B,C,D,E> extends Serializable {
     D _4();
     E _5();
 
-    default <RES> RES map( Fn5<RES,A,B,C,D,E> f ){
+    default <RES> RES map( Fn5<A,B,C,D,E,RES> f ){
         if( f==null )throw new IllegalArgumentException("f==null");
         return f.apply(_1(), _2(), _3(), _4(), _5());
     }

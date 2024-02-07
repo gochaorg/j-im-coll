@@ -11,7 +11,7 @@ public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
     E _5();
     F _6();
 
-    default <RES> RES map( Fn6<RES,A,B,C,D,E,F> f ){
+    default <RES> RES map( Fn6<A,B,C,D,E,F,RES> f ){
         if( f==null )throw new IllegalArgumentException("f==null");
         return f.apply(_1(), _2(), _3(), _4(), _5(), _6());
     }

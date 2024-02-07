@@ -14,7 +14,7 @@ public sealed interface Tuple1<A> extends Serializable {
      */
     A _1();
 
-    default <RES> RES map( Fn1<RES,A> f ) {
+    default <RES> RES map( Fn1<A,RES> f ) {
         if( f==null )throw new IllegalArgumentException("f==null");
         return f.apply(_1());
     }

@@ -5,9 +5,9 @@ import java.util.function.Function;
 
 /**
  * Функция с одним элементом
- * @param <RES> результат функции
  * @param <A> аргумент функции
+ * @param <RES> результат функции
  */
-public interface Fn1<RES,A> extends Serializable, Function<A,RES> {
+public interface Fn1<A,RES> extends Serializable, Function<A,RES> {
     RES apply(A a);
 }

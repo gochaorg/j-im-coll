@@ -41,7 +41,7 @@ public interface ImList<A>
      * @param items  искомые элементы
      * @return кол-во совпавших
      */
-    default int containsCount(Fn2<Boolean, A, A> equals, PositionalRead<A> items) {
+    default int containsCount(Fn2<A, A, Boolean> equals, PositionalRead<A> items) {
         if (equals == null) throw new IllegalArgumentException("equals==null");
         if (items == null) throw new IllegalArgumentException("items==null");
         int[] cnt = new int[]{0};

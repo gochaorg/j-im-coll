@@ -9,7 +9,7 @@ public sealed interface Tuple4<A,B,C,D> extends Serializable {
     C _3();
     D _4();
 
-    default <RES> RES map( Fn4<RES,A,B,C,D> f ){
+    default <RES> RES map( Fn4<A,B,C,D,RES> f ){
         if( f==null )throw new IllegalArgumentException("f==null");
         return f.apply(_1(), _2(), _3(), _4());
     }
