@@ -58,7 +58,7 @@ public class HTreeTest {
             }
         });
 
-        assertTrue( matchCount.get()>=4 );
+        assertTrue(matchCount.get() >= 4);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class HTreeTest {
             new NodeC(4,
                 new NodeC(5,
                     new NodeC(8,
-                    new NodeB("6"))))
+                        new NodeB("6"))))
         );
 
         System.out.println("before");
@@ -76,10 +76,25 @@ public class HTreeTest {
 
         System.out.println("update");
         var newRoot = HTree.update(root, up -> new Object() {
-            public void accept2(NodeB nb) {
-                System.out.println("updating " + nb);
-                if (nb.a.equalsIgnoreCase("3")) up.update(new NodeB("3-updated"));
-                if (nb.a.equalsIgnoreCase("6")) up.update(new NodeB("6-updated"));
+            public void accept(NodeB nb) {
+                if (nb.a.equalsIgnoreCase("3")) {
+                    var n = new NodeB("3-updated");
+                    System.out.println("updating " + nb + " -> " + n);
+                    up.update(n);
+                }
+                if (nb.a.equalsIgnoreCase("6")) {
+                    var n = new NodeB("6-updated");
+                    System.out.println("updating " + nb + " -> " + n);
+                    up.update(n);
+                }
+            }
+
+            public void accept(NodeC nc) {
+                var n = new NodeC(55, nc.c);
+                if (nc.b == 5) {
+                    System.out.println("updating " + nc + " -> " + n);
+                    up.update(n);
+                }
             }
         });
 
@@ -88,13 +103,17 @@ public class HTreeTest {
 
         var matchCnt = new AtomicInteger(0);
 
-        HTree.read(newRoot, new Object(){
-            void node(NodeB nb){
-                if(nb.a.equalsIgnoreCase("3-updated"))matchCnt.incrementAndGet();
-                if(nb.a.equalsIgnoreCase("6-updated"))matchCnt.incrementAndGet();
+        HTree.read(newRoot, new Object() {
+            void node(NodeB nb) {
+                if (nb.a.equalsIgnoreCase("3-updated")) matchCnt.incrementAndGet();
+                if (nb.a.equalsIgnoreCase("6-updated")) matchCnt.incrementAndGet();
+            }
+
+            void node(NodeC nc) {
+                if (nc.b == 55) matchCnt.incrementAndGet();
             }
         });
 
-        assertTrue(matchCnt.get()>=2);
+        assertTrue(matchCnt.get() >= 3);
     }
 }

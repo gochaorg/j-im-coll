@@ -17,6 +17,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+/**
+ * Обход и обновление гетерогенных деревьев
+ */
 public class HTree {
     private final Map<Class<?>, List<Consumer<Object>>> nodeConsumers = new HashMap<>();
 
@@ -51,22 +54,62 @@ public class HTree {
         });
     }
 
-    private void doRead(Object root){
-        var rcls = root.getClass();
-        if( rcls.isRecord() ){
+    private interface Visitor {
+        void enter(Object root, RecordComponent[] recordComponents);
+        void enterField(RecordComponent rc, Field field, Object value);
+        void exitField();
+        Object exit();
+
+        static Visitor dummy(){
+            return new Visitor() {
+                @Override
+                public void enter(Object root, RecordComponent[] recordComponents) {
+                }
+
+                @Override
+                public void enterField(RecordComponent rc, Field field, Object value) {
+
+                }
+
+                @Override
+                public void exitField() {
+
+                }
+
+                @Override
+                public Object exit() {
+                    return null;
+                }
+            };
+        }
+    }
+
+    private void callConsumers(ImList<Object> stack){
+        stack.head().ifPresent(node -> {
+            var rcls = node.getClass();
             var nc = nodeConsumers.get(rcls);
             if( nc!=null ){
-                nc.forEach(c -> c.accept(root));
+                nc.forEach(c -> c.accept(node));
             }
+        });
+    }
 
-            for( var rc : rcls.getRecordComponents() ){
+    private Object run(Object root, Visitor visitor){
+        var rcls = root.getClass();
+        if( rcls.isRecord() ){
+            var recs = rcls.getRecordComponents();
+            visitor.enter(root,recs);
+
+            for( var rc : recs ){
                 try {
                     Field fld = rcls.getDeclaredField(rc.getName());
                     if( fld.trySetAccessible() ){
                         try {
                             var value = fld.get(root);
                             if( value!=null ) {
-                                doRead(value);
+                                visitor.enterField(rc, fld, value);
+                                run(value, visitor);
+                                visitor.exitField();
                             }
                         } catch (IllegalAccessException e) {
                             throw new RuntimeException(e);
@@ -76,15 +119,47 @@ public class HTree {
                     throw new RuntimeException(e);
                 }
             }
+
+            return visitor.exit();
+        }else{
+            return root;
         }
+    }
+
+    private Visitor readVisitor() {
+        return new Visitor() {
+            private ImList<Object> stack = ImList.of();
+
+            @Override
+            public void enter(Object root, RecordComponent[] recordComponents) {
+                stack = stack.prepend(root);
+                callConsumers(stack);
+            }
+
+            @Override
+            public void enterField(RecordComponent rc, Field field, Object value) {
+
+            }
+
+            @Override
+            public void exitField() {
+
+            }
+
+            @Override
+            public Object exit() {
+                stack = stack.tail();
+                return null;
+            }
+        };
     }
 
     public static void read(Object root, Object visitor){
         if( root==null ) throw new IllegalArgumentException("root==null");
         if( visitor==null ) throw new IllegalArgumentException("visitor==null");
 
-        var hvisitor = new HTree(visitor);
-        hvisitor.doRead(root);
+        var ht = new HTree(visitor);
+        ht.run(root, ht.readVisitor());
     }
 
     public interface Update {
@@ -99,13 +174,14 @@ public class HTree {
         private String currentField;
         private final StackNode parent;
         private Object exitValue;
+        private boolean updated = false;
 
         public StackNode(Object node, RecordComponent[] components){
             this.node = node;
             this.recordComponents = components;
             this.currentField = null;
             this.parent = null;
-            this.exitValue = this;
+            this.exitValue = node;
         }
 
         public StackNode(StackNode parent, Object node, RecordComponent[] components){
@@ -113,7 +189,7 @@ public class HTree {
             this.recordComponents = components;
             this.currentField = null;
             this.parent = parent;
-            this.exitValue = this;
+            this.exitValue = node;
         }
 
         public void current(RecordComponent recordComponent, Field field, Object value){
@@ -121,6 +197,7 @@ public class HTree {
         }
 
         private void delayUpdate(Supplier<Object> delayedValue){
+            updated = false;
             if( currentField!=null ){
                 newValuesSuppliers.put(currentField, delayedValue);
             }
@@ -130,6 +207,7 @@ public class HTree {
         }
 
         private void fieldUpdate(Object newValue){
+            updated = false;
             if( currentField!=null ){
                 newValues.put(currentField, newValue);
             }
@@ -139,12 +217,14 @@ public class HTree {
         }
 
         public void update(Object newValue){
+            this.exitValue = newValue;
+            this.updated = true;
             if( parent!=null ){
                 parent.fieldUpdate(newValue);
             }
         }
 
-        public Object exit(){
+        private Object build(){
             if(newValues.isEmpty() && newValuesSuppliers.isEmpty())return node;
 
             var ctrs = node.getClass().getDeclaredConstructors();
@@ -178,34 +258,50 @@ public class HTree {
 
             try {
                 var newObj = ctor.newInstance(values);
-                this.exitValue = newObj;
                 if( parent!=null ){
-                    parent.update(newObj);
+                    parent.fieldUpdate(newObj);
                 }
                 return newObj;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         }
+
+        public Object exit(){
+            if(updated)return exitValue;
+
+            exitValue = build();
+            if( exitValue!=node ){
+                updated = true;
+            }
+            return exitValue;
+        }
     }
 
-    private static class Updater implements Update {
-        private final ArrayList<StackNode> stack = new ArrayList<>();
+    private static class Updater implements Update, Visitor {
+        private final ArrayList<StackNode> nodeStack = new ArrayList<>();
+        private ImList<Object> objectStack = ImList.of();
+        private HTree hTree;
+        public void sethTree(HTree hTree){
+            this.hTree = hTree;
+        }
 
         private void push(StackNode node){
-            stack.add(node);
+            nodeStack.add(node);
         }
 
         private StackNode pop(){
-            return stack.remove(stack.size()-1);
+            return nodeStack.remove(nodeStack.size()-1);
         }
 
         private Optional<StackNode> peek(){
-            if( stack.isEmpty() )return Optional.empty();
-            return Optional.of(stack.get(stack.size()-1));
+            if( nodeStack.isEmpty() )return Optional.empty();
+            return Optional.of(nodeStack.get(nodeStack.size()-1));
         }
 
         public void enter(Object node, RecordComponent[] recordComponents){
+            objectStack = objectStack.prepend(node);
+
             peek().ifPresentOrElse(parent -> {
                 push(new StackNode(parent,node,recordComponents));
             }, () -> {
@@ -226,44 +322,19 @@ public class HTree {
         }
 
         public Object exit(){
-            return pop().exit();
-        }
-    }
+            var ht = hTree;
+            var nodeStack = peek().get();
+            var resObj = nodeStack.exit();
 
-    private Object doUpdate(Object root, Updater updater){
-        var rcls = root.getClass();
-        if( rcls.isRecord() ){
-            var recs = rcls.getRecordComponents();
-            updater.enter(root,recs);
-
-            var nc = nodeConsumers.get(rcls);
-            if( nc!=null ){
-                nc.forEach(c -> c.accept(root));
+            if( ht!=null ) {
+                ht.callConsumers(objectStack.tail().prepend(resObj));
             }
 
-            for( var rc : recs ){
-                try {
-                    Field fld = rcls.getDeclaredField(rc.getName());
-                    if( fld.trySetAccessible() ){
-                        try {
-                            var value = fld.get(root);
-                            if( value!=null ) {
-                                updater.enterField(rc, fld, value);
-                                doUpdate(value, updater);
-                                updater.exitField();
-                            }
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            var nodeStack2 = pop();
 
-            return updater.exit();
-        }else{
-            return root;
+            objectStack = objectStack.tail();
+            resObj = nodeStack2.exit();
+            return resObj;
         }
     }
 
@@ -273,9 +344,13 @@ public class HTree {
 
         Updater updaterImpl = new Updater();
         var visitor = updater.apply(updaterImpl);
+
         var hVisitor = new HTree(visitor);
+        updaterImpl.sethTree(hVisitor);
+
+        var res = hVisitor.run(root, updaterImpl);
 
         //noinspection unchecked
-        return (A)hVisitor.doUpdate(root, updaterImpl);
+        return (A)res;
     }
 }
