@@ -96,6 +96,10 @@ public class HTreeTest {
                     up.update(n);
                 }
             }
+
+            public void accept(Node n){
+                System.out.println("visit "+n);
+            }
         });
 
         System.out.println("after");
