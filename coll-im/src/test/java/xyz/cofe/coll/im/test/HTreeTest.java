@@ -2,6 +2,7 @@ package xyz.cofe.coll.im.test;
 
 import org.junit.jupiter.api.Test;
 import xyz.cofe.coll.im.HTree;
+import xyz.cofe.coll.im.ImList;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +22,9 @@ public class HTreeTest {
     }
 
     public record NodeD(int b, Node c, Node d) implements Node {
+    }
+
+    public record NodeE(ImList<Node> nodes) implements Node {
     }
 
     @Test
@@ -67,8 +71,13 @@ public class HTreeTest {
             new NodeC(2, new NodeB("3")),
             new NodeC(4,
                 new NodeC(5,
-                    new NodeC(8,
-                        new NodeB("6"))))
+                    new NodeE(
+                        ImList.of(
+                            new NodeB("10"),
+                            new NodeB("6"),
+                            new NodeB("11")
+                        )
+                    )))
         );
 
         System.out.println("before");
