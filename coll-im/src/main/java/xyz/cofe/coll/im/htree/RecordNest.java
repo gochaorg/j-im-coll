@@ -134,6 +134,14 @@ public final class RecordNest implements Nest {
         public PathNode withPathValue(Object value) {
             return new RecordIt(recordValue,recordClass,value,recordComponent,recordField);
         }
+
+        @Override
+        public String toString() {
+            if( updated ){
+                return recordClass.getSimpleName()+"{.. "+recordComponent.getName()+"="+fieldValue+" -> "+newValue+"}";
+            }
+            return recordClass.getSimpleName()+"{.. "+recordComponent.getName()+"="+fieldValue+"}";
+        }
     }
 
     public static final class RecordFinish implements Nest.NestFinish {

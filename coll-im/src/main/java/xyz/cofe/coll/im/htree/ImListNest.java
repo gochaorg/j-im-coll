@@ -52,11 +52,15 @@ public final class ImListNest implements Nest {
         private final Object value;
         private final int index;
         private final BiConsumer<Integer,Object> update;
+        private boolean updated;
+        private Object newValue;
 
         public ImListItValue(Object value, int index, BiConsumer<Integer,Object> update){
             this.value = value;
             this.index = index;
             this.update = update;
+            this.updated = false;
+            this.newValue = null;
         }
 
         public int getIndex() {
@@ -76,6 +80,14 @@ public final class ImListNest implements Nest {
         @Override
         public PathNode withPathValue(Object value) {
             return new ImListItValue(value,index,(_skip1,_skip2)->{});
+        }
+
+        @Override
+        public String toString() {
+            if( updated ){
+                return "["+index+"]={"+value+" -> "+newValue+"}";
+            }
+            return "["+index+"]="+value;
         }
     }
 }

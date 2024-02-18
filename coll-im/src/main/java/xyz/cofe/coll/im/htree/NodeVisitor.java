@@ -16,93 +16,164 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class NodeVisitor {
-    private Map<Class<?>, Function<Object,Object>> oneArgUpdate = new HashMap<>();
+    private Map<Class<?>, Function<Object, Object>> oneArgUpdate = new HashMap<>();
+    private Set<Class<?>> oneArgUpdateSkipped = new HashSet<>();
+
     private Map<Class<?>, Consumer<Object>> oneArgRead = new HashMap<>();
+    private Set<Class<?>> oneArgSkipped = new HashSet<>();
+
+    private Map<Class<?>, Consumer<Object>> oneArgReadEnter = new HashMap<>();
+    private Set<Class<?>> oneArgSkippedEnter = new HashSet<>();
+
     private Set<Consumer<ImList<Nest.PathNode>>> pathConsumers = new HashSet<>();
+    private Set<Consumer<ImList<Nest.PathNode>>> pathConsumersEnter = new HashSet<>();
 
-    public NodeVisitor(Object visitor){
-        if( visitor!=null ){
-            var vcls = visitor.getClass();
-            var visited = new HashSet<Method>();
+    private Object visitor;
 
-            Stream.concat(
-                Arrays.stream(vcls.getDeclaredMethods()),
-                Arrays.stream(vcls.getMethods())
-            ).forEach(method -> {
-                if (visited.contains(method)) return;
-                visited.add(method);
+    public NodeVisitor(Object visitor0) {
+        if (visitor0 == null) throw new IllegalArgumentException("visitor==null");
 
-                if ((method.getModifiers() & Modifier.PRIVATE) > 0) return;
+        this.visitor = visitor0;
 
-                var params = method.getParameters();
-                if( params.length==1 ){
-                    var paramClass = params[0].getType();
-                    if( paramClass.isAssignableFrom(method.getReturnType()) ){
-                        oneArgUpdate.put(params[0].getType(), v -> {
-                            if( method.trySetAccessible() ){
+        var vcls = visitor0.getClass();
+        var visited = new HashSet<Method>();
+
+        Stream.concat(
+            Arrays.stream(vcls.getDeclaredMethods()),
+            Arrays.stream(vcls.getMethods())
+        ).forEach(method -> {
+            if (visited.contains(method)) return;
+            visited.add(method);
+
+            if ((method.getModifiers() & Modifier.PRIVATE) > 0) return;
+
+            var params = method.getParameters();
+            if (params.length == 1) {
+                var paramClass = params[0].getType();
+                if (paramClass.isAssignableFrom(method.getReturnType())) {
+                    oneArgUpdate.put(params[0].getType(), v -> {
+                        if (method.trySetAccessible()) {
+                            try {
+                                return method.invoke(visitor, v);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        return v;
+                    });
+                } else if (method.getReturnType() == void.class || method.getReturnType() == Void.class) {
+                    oneArgRead.put(params[0].getType(), v -> {
+                        if (method.trySetAccessible()) {
+                            try {
+                                method.invoke(visitor, v);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+                }
+
+                var genParamType = params[0].getParameterizedType();
+                if (genParamType instanceof ParameterizedType pt) {
+                    var rawType = pt.getRawType();
+                    var typeArgs = pt.getActualTypeArguments();
+                    if (rawType.getTypeName().equals(ImList.class.getName()) && typeArgs.length == 1 && typeArgs[0].getTypeName().equals(Nest.PathNode.class.getName())) {
+                        var consumers = pathConsumers;
+                        if (method.getName().equalsIgnoreCase("enter")) {
+                            consumers = pathConsumersEnter;
+                        }
+
+                        consumers.add(path -> {
+                            if (method.trySetAccessible()) {
                                 try {
-                                    return method.invoke(visitor, v);
+                                    method.invoke(visitor, path);
                                 } catch (IllegalAccessException | InvocationTargetException e) {
                                     throw new RuntimeException(e);
                                 }
                             }
-                            return v;
                         });
                     }
-
-
-
-                    var genParamType = params[0].getParameterizedType();
-                    if( genParamType instanceof ParameterizedType pt ){
-                        var rawType = pt.getRawType();
-                        var typeArgs = pt.getActualTypeArguments();
-                        if( rawType.getTypeName().equals(ImList.class.getName()) && typeArgs.length==1 && typeArgs[0].getTypeName().equals(Nest.PathNode.class.getName()) ){
-                            pathConsumers.add( path -> {
-                                if( method.trySetAccessible() ){
-                                    try {
-                                        method.invoke(visitor, path);
-                                    } catch (IllegalAccessException | InvocationTargetException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    public void enter(ImList<Nest.PathNode> path){
-    }
-
-    public void exit(ImList<Nest.PathNode> path){
-        for( var cons : pathConsumers ){
-            cons.accept(path);
-        }
-
-        path.head().ifPresent( head -> {
-            var value = head.pathValue();
-            if( value!=null ){
-                var handler = oneArgRead.get(value.getClass());
-                if( handler!=null ){
-                    handler.accept(value);
                 }
             }
         });
     }
 
-    public UpdateResult update(ImList<Nest.PathNode> path){
+    public void setVisitor(Object visitor){
+        if( visitor==null ) throw new IllegalArgumentException("visitor==null");
+        this.visitor = visitor;
+    }
+
+    public void enter(ImList<Nest.PathNode> path) {
+        reading(path, pathConsumersEnter, oneArgReadEnter, oneArgSkippedEnter);
+    }
+
+    private void reading(ImList<Nest.PathNode> path, Set<Consumer<ImList<Nest.PathNode>>> pathConsumers, Map<Class<?>, Consumer<Object>> oneArgRead, Set<Class<?>> oneArgSkipped) {
+        for (var cons : pathConsumers) {
+            cons.accept(path);
+        }
+
+        path.head().ifPresent(head -> {
+            var value = head.pathValue();
+            if (value != null) {
+                var handler = oneArgRead.get(value.getClass());
+                if (handler != null) {
+                    handler.accept(value);
+                } else {
+                    if (oneArgSkipped.contains(value.getClass())) return;
+
+                    Map<Class<?>, Consumer<Object>> m = new HashMap<>();
+                    for (var e : oneArgRead.entrySet()) {
+                        if (e.getKey().isAssignableFrom(value.getClass())) {
+                            m.put(value.getClass(), e.getValue());
+                        }
+                    }
+                    oneArgRead.putAll(m);
+                    for (var v : m.values()) {
+                        v.accept(value);
+                    }
+                    if (m.isEmpty()) {
+                        oneArgSkipped.add(value.getClass());
+                    }
+                }
+            }
+        });
+    }
+
+    public void exit(ImList<Nest.PathNode> path) {
+        reading(path, pathConsumers, oneArgRead, oneArgSkipped);
+    }
+
+    public UpdateResult update(ImList<Nest.PathNode> path) {
         var h = path.head();
-        if( h.isPresent() ){
+        if (h.isPresent()) {
             var node = h.get();
             var value = node.pathValue();
-            if( value!=null ){
+            if (value != null) {
                 var handler = oneArgUpdate.get(value.getClass());
-                if( handler!=null ){
+                if (handler != null) {
                     var r = handler.apply(value);
-                    if( r!=value ){
+                    if (r != value) {
                         return new UpdateResult.Updated(r);
+                    }
+                } else {
+                    if (!oneArgUpdateSkipped.contains(value.getClass())) {
+                        Map<Class<?>, Function<Object, Object>> m = new HashMap<>();
+                        for (var e : oneArgUpdate.entrySet()) {
+                            if (e.getKey().isAssignableFrom(value.getClass())) {
+                                var f = e.getValue();
+                                m.put(value.getClass(), f);
+                            }
+                        }
+                        oneArgUpdate.putAll(m);
+                        for (var v : m.values()) {
+                            var r = v.apply(value);
+                            if (r != value) {
+                                return new UpdateResult.Updated(r);
+                            }
+                        }
+                        if (m.isEmpty()) {
+                            oneArgUpdateSkipped.add(value.getClass());
+                        }
                     }
                 }
             }

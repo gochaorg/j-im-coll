@@ -3,13 +3,21 @@ package xyz.cofe.coll.im;
 import xyz.cofe.coll.im.htree.ImListNest;
 import xyz.cofe.coll.im.htree.Nest;
 import xyz.cofe.coll.im.htree.NodeVisitor;
+import xyz.cofe.coll.im.htree.OptionalNest;
 import xyz.cofe.coll.im.htree.RecordNest;
 import xyz.cofe.coll.im.htree.UpdateResult;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Обход и обновление гетерогенных деревьев
+ *
+ * <p>
+ * Системное свойство: <code>HTree.visitorCacheEnabled</code>, по умолчанию <code>false</code> - указывает,
+ * кешировать или нет информацию о методах визитера
+ * </p>
  */
 public class HTree {
     private static Optional<Nest> nestOf(Object root) {
@@ -24,11 +32,26 @@ public class HTree {
             return Optional.of(new ImListNest());
         }
 
+        if (root instanceof Optional<?>) {
+            return Optional.of(new OptionalNest());
+        }
+
         return Optional.empty();
     }
 
+    private final static Map<Class<?>, NodeVisitor> visitorCache = new HashMap<>();
+
     public static <A> A visit(A root, Object visitor) {
-        var nv = new NodeVisitor(visitor);
+        if (root == null) throw new IllegalArgumentException("root==null");
+        if (visitor == null) throw new IllegalArgumentException("visitor==null");
+
+        boolean cacheEnabled = System.getProperty("HTree.visitorCacheEnabled", "false").equalsIgnoreCase("true");
+        NodeVisitor nv = cacheEnabled
+            ? visitorCache.computeIfAbsent(visitor.getClass(), x -> new NodeVisitor(visitor))
+            : new NodeVisitor(visitor);
+
+        if (cacheEnabled) nv.setVisitor(visitor);
+
         return visit(root, ImList.of(new Nest.RootPathNode(root)), nv);
     }
 

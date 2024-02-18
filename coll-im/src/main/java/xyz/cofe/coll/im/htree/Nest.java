@@ -4,6 +4,7 @@ package xyz.cofe.coll.im.htree;
  * Обход элементов
  */
 public sealed interface Nest permits ImListNest,
+                                     OptionalNest,
                                      RecordNest {
     /**
      * Вход в объект
@@ -17,7 +18,8 @@ public sealed interface Nest permits ImListNest,
      * Итератор по элементам
      */
     sealed interface NestIter permits ImListNest.ImListIter,
-                                                       RecordNest.RecordIter {
+                                      OptionalNest.OptionalIter,
+                                      RecordNest.RecordIter {
         NestIt next();
     }
 
@@ -44,6 +46,7 @@ public sealed interface Nest permits ImListNest,
      */
     sealed interface NestItValue extends NestIt,
                                          PathNode permits ImListNest.ImListItValue,
+                                                          OptionalNest.OptionalValue,
                                                           RecordNest.RecordIt {
         Object value();
 
@@ -59,6 +62,7 @@ public sealed interface Nest permits ImListNest,
      * Обход завершен
      */
     sealed interface NestFinish extends NestIt permits ImListNest.ImListIter,
+                                                       OptionalNest.OptionalIter,
                                                        RecordNest.RecordFinish {
         Object exit();
     }
