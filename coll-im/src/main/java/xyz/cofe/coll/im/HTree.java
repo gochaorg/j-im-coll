@@ -1,168 +1,107 @@
 package xyz.cofe.coll.im;
 
-import xyz.cofe.coll.im.htree.Updater;
-import xyz.cofe.coll.im.htree.Visitor;
+import xyz.cofe.coll.im.htree.ImListNest;
+import xyz.cofe.coll.im.htree.Nest;
+import xyz.cofe.coll.im.htree.NodeVisitor;
+import xyz.cofe.coll.im.htree.RecordNest;
+import xyz.cofe.coll.im.htree.UpdateResult;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.RecordComponent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 /**
  * Обход и обновление гетерогенных деревьев
  */
 public class HTree {
-    // TODO Подумать над кешем
-    private final Map<Class<?>, List<Consumer<Object>>> nodeConsumers = new HashMap<>();
+    private static Optional<Nest> nestOf(Object root) {
+        if (root == null) return Optional.empty();
 
-    private HTree(Object visitor) {
-        var vcls = visitor.getClass();
-        var visited = new HashSet<Method>();
-
-        Stream.concat(
-            Arrays.stream(vcls.getDeclaredMethods()),
-            Arrays.stream(vcls.getMethods())
-        ).forEach(method -> {
-            if (visited.contains(method)) return;
-            visited.add(method);
-
-            if ((method.getModifiers() & Modifier.PRIVATE) > 0) return;
-
-            var params = method.getParameters();
-            if (params.length == 1) {
-                var param = params[0];
-                Consumer<Object> consumer = value -> {
-                    try {
-                        if (method.trySetAccessible()) {
-                            method.invoke(visitor, value);
-                        } else {
-                            throw new RuntimeException("!!");
-                        }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                };
-
-                nodeConsumers.computeIfAbsent(param.getType(), _1 -> new ArrayList<>()).add(consumer);
-            }
-        });
-    }
-
-    private void callConsumers(ImList<Object> stack) {
-        stack.head().ifPresent(node -> {
-            var klass = node.getClass();
-
-            // TODO Подумать над кешем, чтоб не перебирать
-            for (var en : nodeConsumers.entrySet()) {
-                var acceptKlass = en.getKey();
-                if (acceptKlass.isAssignableFrom(klass)) {
-                    var consumers = en.getValue();
-                    consumers.forEach(c -> c.accept(node));
-                }
-            }
-        });
-    }
-
-    private Object run(Object root, Visitor visitor) {
-        var rcls = root.getClass();
-        if (rcls.isRecord()) {
-            var recs = rcls.getRecordComponents();
-            visitor.enterRecord(root, recs);
-
-            for (var rc : recs) {
-                try {
-                    Field fld = rcls.getDeclaredField(rc.getName());
-                    if (fld.trySetAccessible()) {
-                        try {
-                            var value = fld.get(root);
-                            if (value != null) {
-                                visitor.enterField(rc, fld, value);
-                                run(value, visitor);
-                                visitor.exitField();
-                            }
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return visitor.exitRecord();
-        } else if(root instanceof Iterable<?> iterable ){
-            var idx = -1;
-            for( var itm : iterable ){
-                idx++;
-                visitor.enterIndexedValue(idx,itm);
-                run(itm,visitor);
-                visitor.exitIndexedValue();
-            }
-            return root;
-        } else {
-            return root;
+        Class<?> klass = root.getClass();
+        if (klass.isRecord()) {
+            return Optional.of(new RecordNest());
         }
+
+        if (root instanceof ImList<?>) {
+            return Optional.of(new ImListNest());
+        }
+
+        return Optional.empty();
     }
 
-    private Visitor readVisitor() {
-        return new Visitor() {
-            private ImList<Object> stack = ImList.of();
-
-            @Override
-            public void enterRecord(Object root, RecordComponent[] recordComponents) {
-                stack = stack.prepend(root);
-                callConsumers(stack);
-            }
-
-            @Override
-            public void enterField(RecordComponent rc, Field field, Object value) {
-
-            }
-
-            @Override
-            public void exitField() {
-
-            }
-
-            @Override
-            public Object exitRecord() {
-                stack = stack.tail();
-                return null;
-            }
-        };
+    public static <A> A visit(A root, Object visitor) {
+        var nv = new NodeVisitor(visitor);
+        return visit(root, ImList.of(new Nest.RootPathNode(root)), nv);
     }
 
-    public static void read(Object root, Object visitor) {
-        if (root == null) throw new IllegalArgumentException("root==null");
-        if (visitor == null) throw new IllegalArgumentException("visitor==null");
-
-        var ht = new HTree(visitor);
-        ht.run(root, ht.readVisitor());
+    private static UpdateResult update(Object value, ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
+        return nodeVisitor.update(path);
     }
 
-    public static <A> A update(A root, Function<HTreeUpdate, Object> updater) {
-        if (root == null) throw new IllegalArgumentException("root==null");
-        if (updater == null) throw new IllegalArgumentException("updater==null");
+    private static <A> A visit(A root, ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
+        if (path == null) throw new IllegalArgumentException("path==null");
 
-        Updater updaterImpl = new Updater();
-        var visitor = updater.apply(updaterImpl);
+        nodeVisitor.enter(path);
 
-        var hVisitor = new HTree(visitor);
-        updaterImpl.setConsumer(hVisitor::callConsumers);
+        var nestOpt = nestOf(root);
+        if (nestOpt.isEmpty()) {
+            // случай лист - терминальный узел
+            var updateResult = update(root, path, nodeVisitor);
+            if (updateResult == UpdateResult.NoUpdate.instance) {
+                nodeVisitor.exit(path);
+                return root;
+            } else if (updateResult instanceof UpdateResult.Updated up) {
+                var a = (A) up.result();
+                path.head().ifPresent(h -> {
+                    nodeVisitor.exit(
+                        path.tail().prepend(h.withPathValue(a))
+                    );
+                });
+                return a;
+            }
+        }
 
-        var res = hVisitor.run(root, updaterImpl);
+        var nest = nestOpt.get();
+        var iter = nest.enter(root);
+        var result = root;
 
-        //noinspection unchecked
-        return (A) res;
+        while (true) {
+            var itm = iter.next();
+            if (itm instanceof Nest.NestItValue nv) {
+                var maybeUpdated = visit(nv.value(), path.prepend(nv), nodeVisitor);
+                if (maybeUpdated != nv.value()) {
+                    // обновлен лист/узел
+                    nv.update(maybeUpdated);
+                }
+            } else if (itm instanceof Nest.NestFinish nf) {
+                result = (A) nf.exit();
+                break;
+            }
+        }
+
+        var updateResult = update(result, path, nodeVisitor);
+        if (updateResult == UpdateResult.NoUpdate.instance) {
+            var aResult = result;
+            path.head().ifPresent(h -> {
+                nodeVisitor.exit(
+                    path.tail().prepend(h.withPathValue(aResult))
+                );
+            });
+            return result;
+        } else if (updateResult instanceof UpdateResult.Updated up) {
+            var aResult = (A) up.result();
+            path.head().ifPresent(h -> {
+                nodeVisitor.exit(
+                    path.tail().prepend(h.withPathValue(aResult))
+                );
+            });
+            return aResult;
+        }
+
+        var aResult = result;
+        path.head().ifPresent(h -> {
+            nodeVisitor.exit(
+                path.tail().prepend(h.withPathValue(aResult))
+            );
+        });
+        return result;
     }
 }
