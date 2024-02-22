@@ -12,7 +12,14 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Обход и обновление гетерогенных деревьев
+ * Обход и обновление гетерогенных деревьев (record) <br>
+ *
+ * Работает со следующими вложенными структурами:
+ * <ul>
+ *     <li>record</li>
+ *     <li>ImList</li>
+ *     <li>Optional</li>
+ * </ul>
  *
  * <p>
  * Системное свойство: <code>HTree.visitorCacheEnabled</code>, по умолчанию <code>false</code> - указывает,
