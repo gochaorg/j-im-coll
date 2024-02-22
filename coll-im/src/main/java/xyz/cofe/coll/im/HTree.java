@@ -18,6 +18,35 @@ import java.util.Optional;
  * Системное свойство: <code>HTree.visitorCacheEnabled</code>, по умолчанию <code>false</code> - указывает,
  * кешировать или нет информацию о методах визитера
  * </p>
+ *
+ * В общем случае выглядит так
+ *
+ * <pre>
+ * HTree.visit(root, new Object() {
+ *     // обновление конкретного типа узла
+ *     NodeB node(NodeB n) {
+ *         return new NodeB(n.a + n.a);
+ *     }
+ *
+ *     // обновление обобщенного типа узла
+ *     Node node2(Node n) {
+ *         if (n instanceof NodeC nc && nc.b==4) {
+ *             return new NodeC(44, nc.c);
+ *         }
+ *         return n;
+ *     }
+ *
+ *     // вход в узел
+ *     void enter(ImList&lt;Nest.PathNode&gt; path) {
+ *         System.out.println("enter " + "&gt;&gt;&gt; ".repeat(path.size()) + path.head().get());
+ *     }
+ *
+ *     // выход из узла
+ *     void show(ImList&lt;Nest.PathNode&gt; path) {
+ *         System.out.println("exit  " + "&gt;&gt;&gt; ".repeat(path.size()) + path.head().get());
+ *     }
+ * })
+ * </pre>
  */
 public class HTree {
     private static Optional<Nest> nestOf(Object root) {
@@ -41,6 +70,14 @@ public class HTree {
 
     private final static Map<Class<?>, NodeVisitor> visitorCache = new HashMap<>();
 
+    /**
+     * Обход дерева и обновление узлов
+     *
+     * @param root корень дерева
+     * @param visitor объект для посещения и обновления узлов {@link NodeVisitor}
+     * @return обновленное или старое дерево
+     * @param <A> тип дерева
+     */
     public static <A> A visit(A root, Object visitor) {
         if (root == null) throw new IllegalArgumentException("root==null");
         if (visitor == null) throw new IllegalArgumentException("visitor==null");
