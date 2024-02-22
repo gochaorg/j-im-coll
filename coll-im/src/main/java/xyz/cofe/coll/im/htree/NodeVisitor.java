@@ -15,6 +15,46 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Выполняя рефлексию подготавливает лямбды на основе методов, которые будут вызваны при посещении очередного узла
+ * <br>
+ *
+ * Ищет следующие методы:
+ *
+ * <ul>
+ *     <li>
+ *         <code>B имя_метода( A )</code>,
+ *         <i>где A extends B</i> <br>
+ *         Данный метод будет использоваться для обновления узла дерева,
+ *         где узел дерева имеет тип ? extends A или тип A
+ *         <br>
+ *
+ *     </li>
+ *
+ *     <li>
+ *         <code>void имя_метода( A )</code> <br>
+ *         Данный метод используется только для чтения узла.
+ *         Принимаемый узел соответствует ? extends A.
+ *     </li>
+ *
+ *     <li>
+ *         <code>void enter( A )</code> <br>
+ *         Данный метод так же используется для чтения, но
+ *         данный метод будет вызван перед посещения узла.
+ *     </li>
+ *
+ *     <li>
+ *         <code>? имя_метода( ImList&lt;Nest.PathNode&gt; )</code>
+ *         Данный метод для чтения, вызывается при выходе из узла. <br>
+ *         В аргументах передается путь от текущего узла к корню
+ *     </li>
+ *
+ *     <li>
+ *         <code>? enter( ImList&lt;Nest.PathNode&gt; )</code>
+ *         Так же для чтения пути текущего узла, но вызывается перед входом в узел.
+ *     </li>
+ * </ul>
+ */
 public class NodeVisitor {
     private Map<Class<?>, Function<Object, Object>> oneArgUpdate = new HashMap<>();
     private Set<Class<?>> oneArgUpdateSkipped = new HashSet<>();
