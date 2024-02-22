@@ -6,6 +6,9 @@ import xyz.cofe.coll.im.ImList;
 import xyz.cofe.coll.im.htree.Nest;
 import xyz.cofe.coll.im.htree.RecordNest;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HTreeTest {
@@ -25,6 +28,9 @@ public class HTreeTest {
     }
 
     public record NodeE(ImList<Node> nodes) implements Node {
+    }
+
+    public record NodeF(Optional<Node> node) implements Node {
     }
 
     @Test
@@ -91,6 +97,66 @@ public class HTreeTest {
     }
 
     @Test
+    public void update2(){
+        var tree = new NodeE(
+            ImList.of(
+                new NodeF(Optional.empty()),
+                new NodeF(Optional.of(
+                    new NodeD(1,
+                        new NodeD(2, new NodeA(), new NodeB("3") ),
+                        new NodeC( 4, new NodeB("5"))
+                    )
+                )),
+                new NodeF(Optional.of(new NodeB("8")))
+            )
+        );
+
+        tree = HTree.visit(
+            tree,
+            new Object(){
+                NodeB update(NodeB n){
+                    return new NodeB(n.a+n.a);
+                }
+                NodeC update(NodeC n){
+                    return new NodeC(n.b*n.b, n.c);
+                }
+                NodeD update(NodeD n){
+                    return new NodeD(n.b + 100, n.c, n.d);
+                }
+                NodeE update(NodeE n){
+                    return new NodeE(n.nodes.prepend(new NodeB("543")));
+                }
+                NodeF update(NodeF n){
+                    if( n.node.isEmpty() )return new NodeF(Optional.of(new NodeB("o2d")));
+                    return n;
+                }
+            }
+        );
+
+        var na = new ArrayList<NodeA>();
+        var nb = new ArrayList<NodeB>();
+        var nc = new ArrayList<NodeC>();
+        var nd = new ArrayList<NodeD>();
+        var ne = new ArrayList<NodeE>();
+        var nf = new ArrayList<NodeF>();
+        HTree.visit(tree, new Object(){
+            void accept(NodeA n){ na.add(n); }
+            void accept(NodeB n){ nb.add(n); }
+            void accept(NodeC n){ nc.add(n); }
+            void accept(NodeD n){ nd.add(n); }
+            void accept(NodeE n){ ne.add(n); }
+            void accept(NodeF n){ nf.add(n); }
+        });
+
+        assertTrue(nb.stream().anyMatch(n -> n.a.equals("33")));
+        assertTrue(nb.stream().anyMatch(n -> n.a.equals("55")));
+        assertTrue(nb.stream().anyMatch(n -> n.a.equals("88")));
+        assertTrue(nc.stream().anyMatch(n -> n.b==16));
+        assertTrue(nd.stream().anyMatch(n -> n.b==102));
+        assertTrue(nd.stream().anyMatch(n -> n.b==101));
+    }
+
+    @Test
     public void visit() {
         var n2 = new NodeA();
         var n3 = new NodeC(4, n2);
@@ -113,5 +179,23 @@ public class HTreeTest {
                 System.out.println("exit  " + ">>> ".repeat(path.size()) + path.head().get());
             }
         });
+    }
+
+    @Test
+    public void optVisit(){
+        HTree.visit(
+            new NodeE(ImList.of(
+                new NodeF(Optional.empty()),
+                new NodeF(Optional.of(new NodeC(1, new NodeA())))
+            )),
+            new Object(){
+                void enter(ImList<Nest.PathNode> path) {
+                    System.out.println("enter " + ">>> ".repeat(path.size()) + path.head().get());
+                }
+                void exit(ImList<Nest.PathNode> path) {
+                    System.out.println("exit  " + "<<< ".repeat(path.size()) + path.head().get());
+                }
+            }
+        );
     }
 }

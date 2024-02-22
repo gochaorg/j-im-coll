@@ -6,6 +6,9 @@ import java.lang.reflect.RecordComponent;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Обход элементов типа record
+ */
 public final class RecordNest implements Nest {
     @Override
     public RecordIter enter(Object value) {

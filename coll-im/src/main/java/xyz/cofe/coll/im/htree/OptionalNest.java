@@ -31,8 +31,9 @@ public final class OptionalNest implements Nest {
         @Override
         public NestIt next() {
             if( ptr>0 )return this;
+            if( optional.isEmpty() )return this;
             ptr++;
-            return new OptionalValue(optional, this);
+            return new OptionalValue(optional.get(), this);
         }
 
         private Object newInnerValue = null;

@@ -89,6 +89,30 @@ public class NodeVisitor {
 
             var params = method.getParameters();
             if (params.length == 1) {
+                var genParamType = params[0].getParameterizedType();
+                if (genParamType instanceof ParameterizedType pt) {
+                    var rawType = pt.getRawType();
+                    var typeArgs = pt.getActualTypeArguments();
+                    if (rawType.getTypeName().equals(ImList.class.getName()) && typeArgs.length == 1 && typeArgs[0].getTypeName().equals(Nest.PathNode.class.getName())) {
+                        var consumers = pathConsumers;
+                        if (method.getName().equalsIgnoreCase("enter")) {
+                            consumers = pathConsumersEnter;
+                        }
+
+                        consumers.add(path -> {
+                            if (method.trySetAccessible()) {
+                                try {
+                                    method.invoke(visitor, path);
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
+
+                        return;
+                    }
+                }
+
                 var paramClass = params[0].getType();
                 if (paramClass.isAssignableFrom(method.getReturnType())) {
                     oneArgUpdate.put(params[0].getType(), v -> {
@@ -111,28 +135,6 @@ public class NodeVisitor {
                             }
                         }
                     });
-                }
-
-                var genParamType = params[0].getParameterizedType();
-                if (genParamType instanceof ParameterizedType pt) {
-                    var rawType = pt.getRawType();
-                    var typeArgs = pt.getActualTypeArguments();
-                    if (rawType.getTypeName().equals(ImList.class.getName()) && typeArgs.length == 1 && typeArgs[0].getTypeName().equals(Nest.PathNode.class.getName())) {
-                        var consumers = pathConsumers;
-                        if (method.getName().equalsIgnoreCase("enter")) {
-                            consumers = pathConsumersEnter;
-                        }
-
-                        consumers.add(path -> {
-                            if (method.trySetAccessible()) {
-                                try {
-                                    method.invoke(visitor, path);
-                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        });
-                    }
                 }
             }
         });

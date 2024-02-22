@@ -20,14 +20,42 @@ public sealed interface Nest permits ImListNest,
     sealed interface NestIter permits ImListNest.ImListIter,
                                       OptionalNest.OptionalIter,
                                       RecordNest.RecordIter {
+
+        /**
+         * Переход к следующему элементу
+         *
+         * @return значение типа NestItValue - очередной элемент из итератора
+         * <br>
+         * значение типа NestFinish - обход завершен
+         */
         NestIt next();
     }
 
+    /**
+     * Элемент пути в дереве
+     */
     sealed interface PathNode {
+        /**
+         * Значение узла дерева
+         *
+         * @return значение
+         */
         Object pathValue();
+
+        /**
+         * Создает клон элемента, с указанным значением
+         *
+         * @param value значение
+         * @return клон
+         */
         PathNode withPathValue(Object value);
     }
 
+    /**
+     * Начало пути
+     *
+     * @param pathValue значение
+     */
     record RootPathNode(Object pathValue) implements PathNode {
         @Override
         public PathNode withPathValue(Object value) {
@@ -53,7 +81,7 @@ public sealed interface Nest permits ImListNest,
         void update(Object newValue);
 
         @Override
-        default Object pathValue(){
+        default Object pathValue() {
             return value();
         }
     }

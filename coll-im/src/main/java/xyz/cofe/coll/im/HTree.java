@@ -13,7 +13,7 @@ import java.util.Optional;
 
 /**
  * Обход и обновление гетерогенных деревьев (record) <br>
- *
+ * <p>
  * Работает со следующими вложенными структурами:
  * <ul>
  *     <li>record</li>
@@ -25,7 +25,7 @@ import java.util.Optional;
  * Системное свойство: <code>HTree.visitorCacheEnabled</code>, по умолчанию <code>false</code> - указывает,
  * кешировать или нет информацию о методах визитера
  * </p>
- *
+ * <p>
  * В общем случае выглядит так
  *
  * <pre>
@@ -80,10 +80,10 @@ public class HTree {
     /**
      * Обход дерева и обновление узлов
      *
-     * @param root корень дерева
+     * @param root    корень дерева
      * @param visitor объект для посещения и обновления узлов {@link NodeVisitor}
+     * @param <A>     тип дерева
      * @return обновленное или старое дерево
-     * @param <A> тип дерева
      */
     public static <A> A visit(A root, Object visitor) {
         if (root == null) throw new IllegalArgumentException("root==null");
@@ -99,27 +99,29 @@ public class HTree {
         return visit(root, ImList.of(new Nest.RootPathNode(root)), nv);
     }
 
-    private static UpdateResult update(Object value, ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
+    private static UpdateResult update(ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
         return nodeVisitor.update(path);
     }
 
     private static <A> A visit(A root, ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
         if (path == null) throw new IllegalArgumentException("path==null");
+        if (path.size() < 1) throw new IllegalArgumentException("path.size() < 1");
 
         nodeVisitor.enter(path);
 
         var nestOpt = nestOf(root);
         if (nestOpt.isEmpty()) {
             // случай лист - терминальный узел
-            var updateResult = update(root, path, nodeVisitor);
+            var updateResult = update(path, nodeVisitor);
             if (updateResult == UpdateResult.NoUpdate.instance) {
                 nodeVisitor.exit(path);
                 return root;
             } else if (updateResult instanceof UpdateResult.Updated up) {
                 var a = (A) up.result();
+                var fpath = path;
                 path.head().ifPresent(h -> {
                     nodeVisitor.exit(
-                        path.tail().prepend(h.withPathValue(a))
+                        fpath.tail().prepend(h.withPathValue(a))
                     );
                 });
                 return a;
@@ -140,33 +142,37 @@ public class HTree {
                 }
             } else if (itm instanceof Nest.NestFinish nf) {
                 result = (A) nf.exit();
+                path = path.tail().prepend(path.head().get().withPathValue(result));
                 break;
             }
         }
 
-        var updateResult = update(result, path, nodeVisitor);
+        var updateResult = update(path, nodeVisitor);
         if (updateResult == UpdateResult.NoUpdate.instance) {
             var aResult = result;
+            var fpath = path;
             path.head().ifPresent(h -> {
                 nodeVisitor.exit(
-                    path.tail().prepend(h.withPathValue(aResult))
+                    fpath.tail().prepend(h.withPathValue(aResult))
                 );
             });
             return result;
         } else if (updateResult instanceof UpdateResult.Updated up) {
             var aResult = (A) up.result();
+            var fpath = path;
             path.head().ifPresent(h -> {
                 nodeVisitor.exit(
-                    path.tail().prepend(h.withPathValue(aResult))
+                    fpath.tail().prepend(h.withPathValue(aResult))
                 );
             });
             return aResult;
         }
 
         var aResult = result;
+        var fpath = path;
         path.head().ifPresent(h -> {
             nodeVisitor.exit(
-                path.tail().prepend(h.withPathValue(aResult))
+                fpath.tail().prepend(h.withPathValue(aResult))
             );
         });
         return result;
