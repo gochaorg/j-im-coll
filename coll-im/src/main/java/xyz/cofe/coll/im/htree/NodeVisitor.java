@@ -171,9 +171,8 @@ public class NodeVisitor {
                     for (var v : m.values()) {
                         v.accept(value);
                     }
-                    if (m.isEmpty()) {
-                        oneArgSkipped.add(value.getClass());
-                    }
+
+                    oneArgSkipped.add(value.getClass());
                 }
             }
         });
@@ -211,9 +210,7 @@ public class NodeVisitor {
                                 return new UpdateResult.Updated(r);
                             }
                         }
-                        if (m.isEmpty()) {
-                            oneArgUpdateSkipped.add(value.getClass());
-                        }
+                        oneArgUpdateSkipped.add(value.getClass());
                     }
                 }
             }

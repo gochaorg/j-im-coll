@@ -37,7 +37,7 @@ import java.util.Optional;
  *
  *     // обновление обобщенного типа узла
  *     Node node2(Node n) {
- *         if (n instanceof NodeC nc && nc.b==4) {
+ *         if (n instanceof NodeC nc &amp;&amp; nc.b==4) {
  *             return new NodeC(44, nc.c);
  *         }
  *         return n;
