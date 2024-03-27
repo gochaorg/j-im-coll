@@ -21,7 +21,10 @@ public abstract class ImListLinkedBase<A>
     Filter<ImList<A>, A>,
     MAP<A>,
     FMap<A>,
-    ImList<A> {
+    ImList<A>,
+    Sort<A>,
+    Product<A>
+{
     private final A value;
     private final ImListLinkedBase<A> next;
     private final int size;

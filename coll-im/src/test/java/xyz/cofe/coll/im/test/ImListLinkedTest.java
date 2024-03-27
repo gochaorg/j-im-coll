@@ -3,6 +3,7 @@ package xyz.cofe.coll.im.test;
 import org.junit.jupiter.api.Test;
 import xyz.cofe.coll.im.ImList;
 import xyz.cofe.coll.im.ImListLinked;
+import xyz.cofe.coll.im.Product;
 import xyz.cofe.coll.im.Tuple2;
 
 import java.util.List;
@@ -395,5 +396,33 @@ public class ImListLinkedTest {
         var lst = ImList.of(1,2,3);
         var res = lst.skip(3);
         assertTrue(res.size()==0);
+    }
+
+    @Test
+    public void sort_test1(){
+        var lst = ImList.of(4,3,2,1,0);
+        var res = lst.sort( a -> a );
+        assertTrue(res.size()==5);
+        assertTrue(res.get(0).map(v->v==0).orElse(false));
+        assertTrue(res.get(1).map(v->v==1).orElse(false));
+        assertTrue(res.get(2).map(v->v==2).orElse(false));
+        assertTrue(res.get(3).map(v->v==3).orElse(false));
+        assertTrue(res.get(4).map(v->v==4).orElse(false));
+    }
+
+    @Test
+    public void prod_test1(){
+        var lst = ImList.of(0,1);
+        var res = lst.product( ImList.of(2,3,4) );
+
+        assertTrue(res.size()==6);
+
+        assertTrue(res.get(0).map(v->v.equals(new Product.Prod<>(0,2))).orElse(false));
+        assertTrue(res.get(1).map(v->v.equals(new Product.Prod<>(0,3))).orElse(false));
+        assertTrue(res.get(2).map(v->v.equals(new Product.Prod<>(0,4))).orElse(false));
+
+        assertTrue(res.get(3).map(v->v.equals(new Product.Prod<>(1,2))).orElse(false));
+        assertTrue(res.get(4).map(v->v.equals(new Product.Prod<>(1,3))).orElse(false));
+        assertTrue(res.get(5).map(v->v.equals(new Product.Prod<>(1,4))).orElse(false));
     }
 }

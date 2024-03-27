@@ -20,7 +20,10 @@ public interface ImList<A>
     Tail<ImList<A>, A>,
     Filter<ImList<A>, A>,
     MAP<A>,
-    FMap<A> {
+    FMap<A>,
+    Sort<A>,
+    Product<A>
+{
     @SafeVarargs
     static <T> ImList<T> of(T... values) {
         return ImListLinked.of(values);
