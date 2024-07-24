@@ -6,7 +6,7 @@
     <parent>
         <groupId>xyz.cofe</groupId>
         <artifactId>coll-im-parent</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0</version>
     </parent>
 
     <artifactId>coll-im-jackson-json</artifactId>
