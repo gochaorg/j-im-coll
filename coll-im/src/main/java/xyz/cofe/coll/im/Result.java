@@ -32,6 +32,14 @@ public final class Result<VALUE,ERROR> {
         return new Result<>(null, e, false);
     }
 
+    @SuppressWarnings({"OptionalAssignedToNull", "OptionalUsedAsFieldOrParameterType", "OptionalIsPresent"})
+    public static <V,E> Result<V,E> from(Optional<V> value, Supplier<E> error){
+        if( value==null ) throw new IllegalArgumentException("value==null");
+        if( error==null ) throw new IllegalArgumentException("error==null");
+
+        return value.isPresent() ? ok(value.get()) : error(error.get());
+    }
+
     public Optional<VALUE> getOk(){
         if( hasValue )return Optional.of(value);
         return Optional.empty();
