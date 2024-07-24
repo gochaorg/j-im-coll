@@ -55,7 +55,7 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
         return lst.reverse();
     }
 
-    public static <A> ImListLinked<A> of( Iterable<A> values ) {
+    public static <A> ImListLinked<A> from( Iterable<A> values ) {
         if( values==null )throw new IllegalArgumentException("values==null");
         var lst = new ImListLinked<A>( null, null );
         for( var a : values ){
@@ -64,13 +64,12 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
         return lst.reverse();
     }
 
-    public static <A> ImListLinked<A> of( PositionalRead<A> values ) {
+    public static <A> ImListLinked<A> from( PositionalRead<A> values ) {
         if( values==null )throw new IllegalArgumentException("values==null");
         var lst = new ImListLinked<A>( null, null );
         lst = values.foldLeft(lst, ImListLinked::prepend);
         return lst.reverse();
     }
-
 
     @Override
     public String toString(){

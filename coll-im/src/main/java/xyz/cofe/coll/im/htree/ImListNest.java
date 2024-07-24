@@ -44,7 +44,7 @@ public final class ImListNest implements Nest {
         @Override
         public Object exit() {
             if( updateCount<1 )return imList;
-            return ImList.of(list);
+            return ImList.from(list);
         }
     }
 

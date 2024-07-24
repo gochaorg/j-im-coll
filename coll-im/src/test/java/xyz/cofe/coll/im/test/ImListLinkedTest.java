@@ -28,7 +28,7 @@ public class ImListLinkedTest {
     @Test
     public void createFromIter_test(){
         // Создание списка
-        var lst = ImList.of(List.of(1,2,3));
+        var lst = ImList.from(List.of(1,2,3));
 
         // Получение размера списка
         assertTrue( lst.size()==3 );
@@ -38,7 +38,7 @@ public class ImListLinkedTest {
     @Test
     public void createFromImList_test(){
         // Создание списка
-        var lst = ImList.of(ImList.of(1,2,3));
+        var lst = ImList.from(ImList.of(1,2,3));
 
         // Получение размера списка
         assertTrue( lst.size()==3 );

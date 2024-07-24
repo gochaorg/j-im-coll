@@ -1,15 +1,11 @@
 package xyz.cofe.coll.im;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import xyz.cofe.coll.im.json.jakson.ImListSerializer;
-
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-@JsonSerialize(using = ImListSerializer.class)
 public interface ImList<A>
     extends
     PositionalRead<A>,
@@ -29,12 +25,12 @@ public interface ImList<A>
         return ImListLinked.of(values);
     }
 
-    static <T> ImList<T> of(Iterable<T> values) {
-        return ImListLinked.of(values);
+    static <T> ImList<T> from(Iterable<T> values) {
+        return ImListLinked.from(values);
     }
 
-    static <T> ImList<T> of(PositionalRead<T> values) {
-        return ImListLinked.of(values);
+    static <T> ImList<T> from(PositionalRead<T> values) {
+        return ImListLinked.from(values);
     }
 
     /**
@@ -92,7 +88,7 @@ public interface ImList<A>
      */
     default boolean containsAll(Iterable<A> items) {
         if (items == null) throw new IllegalArgumentException("items==null");
-        var itms = ImListLinked.of(items);
+        var itms = ImListLinked.from(items);
         var cnt = containsCount(Objects::equals, itms);
         return itms.size() == cnt;
     }
