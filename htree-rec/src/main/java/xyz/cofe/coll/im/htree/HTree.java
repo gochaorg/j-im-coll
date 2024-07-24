@@ -1,11 +1,6 @@
-package xyz.cofe.coll.im;
+package xyz.cofe.coll.im.htree;
 
-import xyz.cofe.coll.im.htree.ImListNest;
-import xyz.cofe.coll.im.htree.Nest;
-import xyz.cofe.coll.im.htree.NodeVisitor;
-import xyz.cofe.coll.im.htree.OptionalNest;
-import xyz.cofe.coll.im.htree.RecordNest;
-import xyz.cofe.coll.im.htree.UpdateResult;
+import xyz.cofe.coll.im.ImList;
 
 import java.util.HashMap;
 import java.util.Map;

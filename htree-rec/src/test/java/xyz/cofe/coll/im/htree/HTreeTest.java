@@ -1,10 +1,7 @@
-package xyz.cofe.coll.im.test;
+package xyz.cofe.coll.im.htree;
 
 import org.junit.jupiter.api.Test;
-import xyz.cofe.coll.im.HTree;
 import xyz.cofe.coll.im.ImList;
-import xyz.cofe.coll.im.htree.Nest;
-import xyz.cofe.coll.im.htree.RecordNest;
 
 import java.util.ArrayList;
 import java.util.Optional;
