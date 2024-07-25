@@ -1,11 +1,24 @@
 package xyz.cofe.coll.im;
 
+/**
+ * Кортеж
+ */
 public interface Tuple {
+    /**
+     * Пустой кортеж
+     * @return Пустой кортеж
+     */
     static Tuple of(){
         return new Tuple() {
         };
     }
 
+    /**
+     * Создание кортежа из одного элемента
+     * @param a значение
+     * @return Кортеж
+     * @param <A> тип значения
+     */
     default <A> Tuple1<A> append( A a ) {
         return of(a);
     }

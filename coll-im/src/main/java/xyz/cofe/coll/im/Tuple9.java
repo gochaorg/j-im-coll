@@ -4,15 +4,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Кортеж из 6 элементов
+ * Кортеж из 9 элементов
  * @param <A> тип 1‑го элемента
  * @param <B> тип 2‑го элемента
  * @param <C> тип 3‑го элемента
  * @param <D> тип 4‑го элемента
  * @param <E> тип 5‑го элемента
  * @param <F> тип 6‑го элемента
+ * @param <H> тип 7‑го элемента
+ * @param <G> тип 8‑го элемента
+ * @param <I> тип 9‑го элемента
  */
-public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
+public sealed interface Tuple9<A,B,C,D,E,F,H,G,I> extends Serializable {
     /**
      * Возвращает 1ый элемент
      * @return 1ый элемент
@@ -50,41 +53,65 @@ public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
     F _6();
 
     /**
+     * Возвращает 7ой элемент
+     * @return 7ой элемент
+     */
+    H _7();
+
+    /**
+     * Возвращает 8ой элемент
+     * @return 8ой элемент
+     */
+    G _8();
+
+    /**
+     * Возвращает 9ый элемент
+     * @return 9ый элемент
+     */
+    I _9();
+
+    /**
      * Отображение кортежа
      * @param f функция отображения
      * @return результат отображения
      * @param <RES> результат отображения
      */
-    default <RES> RES map( Fn6<A,B,C,D,E,F,RES> f ){
+    default <RES> RES map( Fn9<A,B,C,D,E,F,H,G,I,RES> f ){
         if( f==null )throw new IllegalArgumentException("f==null");
-        return f.apply(_1(), _2(), _3(), _4(), _5(), _6());
+        return f.apply(_1(), _2(), _3(), _4(), _5(), _6(), _7(), _8(), _9());
     }
 
     /**
      * Добавление элемента
-     * @param h элемент
+     * @param j элемент
      * @return кортеж
-     * @param <H> тип элемента
+     * @param <J> тип элемента
      */
-    default <H> Tuple7<A,B,C,D,E,F,H> append(H h){
-        return Tuple7.of(_1(), _2(), _3(), _4(), _5(), _6(), h);
+    default <J> Tuple10<A,B,C,D,E,F,H,G,I,J> append(J j){
+        return Tuple10.of(_1(), _2(), _3(), _4(), _5(), _6(), _7(), _8(), _9(), j);
     }
 
-    final class Tuple6Impl<A,B,C,D,E,F> implements Tuple6<A,B,C,D,E,F> {
+    final class Tuple9Impl<A,B,C,D,E,F,H,G,I> implements Tuple9<A,B,C,D,E,F,H,G,I> {
         public final A a;
         public final B b;
         public final C c;
         public final D d;
         public final E e;
         public final F f;
+        public final H h;
+        public final G g;
+        public final I i;
 
-        public Tuple6Impl(A a, B b, C c, D d, E e, F f) {
+        public Tuple9Impl(A a, B b, C c, D d, E e, F f,H h, G g,I i) {
             this.a = a;
             this.b = b;
             this.c = c;
             this.d = d;
             this.e = e;
             this.f = f;
+            this.h = h;
+            this.g = g;
+            this.i = i;
         }
 
         @Override
@@ -118,11 +145,35 @@ public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
         }
 
         @Override
+        public H _7() {
+            return h;
+        }
+
+        @Override
+        public G _8() {
+            return g;
+        }
+
+        @Override
+        public I _9() {
+            return i;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Tuple6Impl<?, ?, ?, ?, ?, ?> tuple6 = (Tuple6Impl<?, ?, ?, ?, ?, ?>) o;
-            return Objects.equals(a, tuple6.a) && Objects.equals(b, tuple6.b) && Objects.equals(c, tuple6.c) && Objects.equals(d, tuple6.d) && Objects.equals(e, tuple6.e) && Objects.equals(f, tuple6.f);
+            Tuple9Impl<?, ?, ?, ?, ?, ?, ?, ?, ?> tuple9 = (Tuple9Impl<?, ?, ?, ?, ?, ?, ?, ?, ?>) o;
+            return Objects.equals(a, tuple9.a)
+                && Objects.equals(b, tuple9.b)
+                && Objects.equals(c, tuple9.c)
+                && Objects.equals(d, tuple9.d)
+                && Objects.equals(e, tuple9.e)
+                && Objects.equals(f, tuple9.f)
+                && Objects.equals(h, tuple9.h)
+                && Objects.equals(g, tuple9.g)
+                && Objects.equals(i, tuple9.i)
+                ;
         }
 
         @Override
@@ -132,7 +183,7 @@ public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
 
         @Override
         public String toString() {
-            return "("+a+", "+b+",  "+c+", "+d+", "+e+", "+f+')';
+            return "("+a+", "+b+",  "+c+", "+d+", "+e+", "+f+", "+h+", "+g+", "+i+')';
         }
     }
 
@@ -144,15 +195,21 @@ public sealed interface Tuple6<A,B,C,D,E,F> extends Serializable {
      * @param d 4ый элемент
      * @param e 5ый элемент
      * @param f 6ой элемент
+     * @param h 7ой элемент
+     * @param g 8ой элемент
+     * @param i 9ый элемент
      * @return кортеж
-     * @param <A> тип 1‑го элемента
-     * @param <B> тип 2‑го элемента
-     * @param <C> тип 3‑го элемента
-     * @param <D> тип 4‑го элемента
-     * @param <E> тип 5‑го элемента
-     * @param <F> тип 6‑го элемента
+     * @param <A> тип 1го элемента
+     * @param <B> тип 2го элемента
+     * @param <C> тип 3го элемента
+     * @param <D> тип 4го элемента
+     * @param <E> тип 5го элемента
+     * @param <F> тип 6го элемента
+     * @param <H> тип 7‑го элемента
+     * @param <G> тип 8‑го элемента
+     * @param <I> тип 9‑го элемента
      */
-    static <A,B,C,D,E,F> Tuple6<A,B,C,D,E,F> of(A a, B b, C c, D d, E e, F f) {
-        return new Tuple6Impl<>(a, b, c, d, e, f);
+    static <A,B,C,D,E,F,H,G,I> Tuple9<A,B,C,D,E,F,H,G,I> of(A a, B b, C c, D d, E e, F f, H h, G g,I i) {
+        return new Tuple9Impl<>(a, b, c, d, e, f, h, g, i);
     }
 }

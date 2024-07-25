@@ -19,6 +19,12 @@ public sealed interface Tuple1<A> extends Serializable {
         return f.apply(_1());
     }
 
+    /**
+     * Добавление элемента
+     * @param b элемент
+     * @return кортеж
+     * @param <B> тип элемента
+     */
     default <B> Tuple2<A,B> append(B b) {
         return Tuple2.of(_1(),b);
     }
@@ -49,6 +55,12 @@ public sealed interface Tuple1<A> extends Serializable {
         }
     }
 
+    /**
+     * Создание кортежа
+     * @param a 1ый элемент
+     * @return кортеж
+     * @param <A> тип 1‑го элемента
+     */
     static <A> Tuple1<A> of( A a ) {
         return new Tuple1Impl<>(a);
     }

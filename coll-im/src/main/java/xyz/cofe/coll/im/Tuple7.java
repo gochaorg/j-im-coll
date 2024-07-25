@@ -4,13 +4,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Кортеж из 4 элементов
+ * Кортеж из 7 элементов
  * @param <A> тип 1‑го элемента
  * @param <B> тип 2‑го элемента
  * @param <C> тип 3‑го элемента
  * @param <D> тип 4‑го элемента
+ * @param <E> тип 5‑го элемента
+ * @param <F> тип 6‑го элемента
+ * @param <H> тип 7‑го элемента
  */
-public sealed interface Tuple4<A,B,C,D> extends Serializable {
+public sealed interface Tuple7<A,B,C,D,E,F,H> extends Serializable {
     /**
      * Возвращает 1ый элемент
      * @return 1ый элемент
@@ -36,37 +39,61 @@ public sealed interface Tuple4<A,B,C,D> extends Serializable {
     D _4();
 
     /**
+     * Возвращает 5ый элемент
+     * @return 5ый элемент
+     */
+    E _5();
+
+    /**
+     * Возвращает 6ой элемент
+     * @return 6ой элемент
+     */
+    F _6();
+
+    /**
+     * Возвращает 7ой элемент
+     * @return 7ой элемент
+     */
+    H _7();
+
+    /**
      * Отображение кортежа
      * @param f функция отображения
      * @return результат отображения
      * @param <RES> результат отображения
      */
-    default <RES> RES map( Fn4<A,B,C,D,RES> f ){
+    default <RES> RES map( Fn7<A,B,C,D,E,F,H,RES> f ){
         if( f==null )throw new IllegalArgumentException("f==null");
-        return f.apply(_1(), _2(), _3(), _4());
+        return f.apply(_1(), _2(), _3(), _4(), _5(), _6(), _7());
     }
 
     /**
      * Добавление элемента
-     * @param e элемент
+     * @param g элемент
      * @return кортеж
-     * @param <E> тип элемента
+     * @param <G> тип элемента
      */
-    default <E> Tuple5<A,B,C,D,E> append(E e){
-        return Tuple5.of(_1(), _2(), _3(), _4(), e);
+    default <G> Tuple8<A,B,C,D,E,F,H,G> append(G g){
+        return Tuple8.of(_1(), _2(), _3(), _4(), _5(), _6(), _7(), g);
     }
 
-    final class Tuple4Impl<A,B,C,D> implements Tuple4<A,B,C,D> {
+    final class Tuple7Impl<A,B,C,D,E,F,H> implements Tuple7<A,B,C,D,E,F,H> {
         public final A a;
         public final B b;
         public final C c;
         public final D d;
+        public final E e;
+        public final F f;
+        public final H h;
 
-        public Tuple4Impl(A a, B b, C c, D d) {
+        public Tuple7Impl(A a, B b, C c, D d, E e, F f,H h) {
             this.a = a;
             this.b = b;
             this.c = c;
             this.d = d;
+            this.e = e;
+            this.f = f;
+            this.h = h;
         }
 
         @Override
@@ -90,21 +117,43 @@ public sealed interface Tuple4<A,B,C,D> extends Serializable {
         }
 
         @Override
+        public E _5() {
+            return e;
+        }
+
+        @Override
+        public F _6() {
+            return f;
+        }
+
+        @Override
+        public H _7() {
+            return h;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Tuple4Impl<?, ?, ?, ?> tuple4 = (Tuple4Impl<?, ?, ?, ?>) o;
-            return Objects.equals(a, tuple4.a) && Objects.equals(b, tuple4.b) && Objects.equals(c, tuple4.c) && Objects.equals(d, tuple4.d);
+            Tuple7Impl<?, ?, ?, ?, ?, ?, ?> tuple7 = (Tuple7Impl<?, ?, ?, ?, ?, ?, ?>) o;
+            return Objects.equals(a, tuple7.a)
+                && Objects.equals(b, tuple7.b)
+                && Objects.equals(c, tuple7.c)
+                && Objects.equals(d, tuple7.d)
+                && Objects.equals(e, tuple7.e)
+                && Objects.equals(f, tuple7.f)
+                && Objects.equals(h, tuple7.h)
+                ;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(a, b, c, d);
+            return Objects.hash(a, b, c, d, e, f);
         }
 
         @Override
         public String toString() {
-            return "("+a+", "+b+",  "+c+", "+d+')';
+            return "("+a+", "+b+",  "+c+", "+d+", "+e+", "+f+", "+h+')';
         }
     }
 
@@ -114,13 +163,19 @@ public sealed interface Tuple4<A,B,C,D> extends Serializable {
      * @param b 2ой элемент
      * @param c 3ий элемент
      * @param d 4ый элемент
+     * @param e 5ый элемент
+     * @param f 6ой элемент
+     * @param h 7ой элемент
      * @return кортеж
      * @param <A> тип 1‑го элемента
      * @param <B> тип 2‑го элемента
      * @param <C> тип 3‑го элемента
      * @param <D> тип 4‑го элемента
+     * @param <E> тип 5‑го элемента
+     * @param <F> тип 6‑го элемента
+     * @param <H> тип 7‑го элемента
      */
-    static <A,B,C,D> Tuple4<A,B,C,D> of(A a, B b, C c, D d) {
-        return new Tuple4Impl<>(a,b,c,d);
+    static <A,B,C,D,E,F,H> Tuple7<A,B,C,D,E,F,H> of(A a, B b, C c, D d, E e, F f,H h) {
+        return new Tuple7Impl<>(a, b, c, d, e, f, h);
     }
 }

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.function.BiFunction;
 
 /**
- * Функция с двумя элементами
+ * Функция с двумя аргументами
  * @param <A> аргумент функции
  * @param <B> аргумент функции
  * @param <RES> результат функции

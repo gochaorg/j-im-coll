@@ -1,5 +1,7 @@
 package xyz.cofe.coll.im;
 
+import xyz.cofe.coll.im.iter.EachToMap;
+
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,7 +20,8 @@ public interface ImList<A>
     MAP<A>,
     FMap<A>,
     Sort<A>,
-    Product<A>
+    Product<A>,
+    EachToMap<A>
 {
     @SafeVarargs
     static <T> ImList<T> of(T... values) {

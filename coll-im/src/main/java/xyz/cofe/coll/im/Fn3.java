@@ -3,7 +3,7 @@ package xyz.cofe.coll.im;
 import java.io.Serializable;
 
 /**
- * Функция с тремя элементами
+ * Функция с тремя аргументами
  * @param <A> аргумент функции
  * @param <B> аргумент функции
  * @param <C> аргумент функции

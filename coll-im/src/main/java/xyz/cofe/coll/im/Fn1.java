@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * Функция с одним элементом
+ * Функция с одним аргументами
  * @param <A> аргумент функции
  * @param <RES> результат функции
  */
