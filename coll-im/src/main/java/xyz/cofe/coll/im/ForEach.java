@@ -14,6 +14,10 @@ public interface ForEach<A> extends Iterable<A> {
      */
     void each(Consumer<A> consumer);
 
+    /**
+     * Преобразование в список
+     * @return список
+     */
     default ImList<A> toImList(){
         var lst = new ArrayList<A>();
         each(lst::add);

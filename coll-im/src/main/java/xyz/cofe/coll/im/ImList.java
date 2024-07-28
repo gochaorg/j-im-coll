@@ -8,6 +8,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Иммутабельный список
+ * @param <A> тип элемента в списке
+ */
 public interface ImList<A>
     extends
     PositionalRead<A>,
@@ -23,15 +27,33 @@ public interface ImList<A>
     Product<A>,
     EachToMap<A>
 {
+    /**
+     * Создание списка из указанных элементов
+     * @param values элементы списка
+     * @return Список из указанных элементов
+     * @param <T> Тип элемента в списке
+     */
     @SafeVarargs
     static <T> ImList<T> of(T... values) {
         return ImListLinked.of(values);
     }
 
+    /**
+     * Создание списка из указанных элементов
+     * @param values элементы списка
+     * @return Список из указанных элементов
+     * @param <T> Тип элемента в списке
+     */
     static <T> ImList<T> from(Iterable<T> values) {
         return ImListLinked.from(values);
     }
 
+    /**
+     * Создание списка из указанных элементов
+     * @param values элементы списка
+     * @return Список из указанных элементов
+     * @param <T> Тип элемента в списке
+     */
     static <T> ImList<T> from(PositionalRead<T> values) {
         return ImListLinked.from(values);
     }
@@ -117,16 +139,6 @@ public interface ImList<A>
     }
 
     /**
-     * Перечисление
-     *
-     * @param index индекс элемента
-     * @param value значение
-     * @param <A>   тип значения
-     */
-    record Enumerated<A>(long index, A value) {
-    }
-
-    /**
      * Перечислить/нумеровать элементы списка
      *
      * @return список
@@ -138,6 +150,10 @@ public interface ImList<A>
         )._2().reverse();
     }
 
+    /**
+     * Возвращает stream для списка
+     * @return stream
+     */
     default Stream<A> stream() {
         return toList().stream();
     }

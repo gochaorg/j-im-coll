@@ -7,6 +7,12 @@ package xyz.cofe.coll.im;
  * @param <C> аргумент функции
  */
 public interface Consumer3<A,B,C> extends Fn3<A,B,C,Result.NoValue> {
+    /**
+     * Переда аргументов в функцию
+     * @param a 1ый аргумент функции
+     * @param b 2ой аргумент функции
+     * @param c 3ий аргумент функции
+     */
     void accept(A a, B b, C c);
 
     @Override

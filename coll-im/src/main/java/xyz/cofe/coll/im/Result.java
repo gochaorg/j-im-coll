@@ -12,8 +12,15 @@ import java.util.function.Supplier;
  * @param <ERROR> Результат выполнения с ошибкой
  */
 public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
+    /**
+     * Отсутствие значения
+     */
     public static final class NoValue {
         private NoValue(){}
+
+        /**
+         * Экземпляр отсутствующего значения
+         */
         public final static NoValue instance = new NoValue();
 
         @Override
@@ -98,7 +105,7 @@ public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
     @SuppressWarnings({"OptionalAssignedToNull", "OptionalUsedAsFieldOrParameterType", "OptionalIsPresent"})
     public static <V,E> Result<V,E> from(Optional<V> value, Supplier<E> error){
         if( value==null ) throw new IllegalArgumentException("value==null");
-        if( error==null ) throw new IllegalArgumentException("error==null");
+        if( error==null ) throw new IllegalArgumentException("value==null");
 
         return value.isPresent() ? ok(value.get()) : error(error.get());
     }
@@ -142,6 +149,15 @@ public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
         if( errUnwrap==null ) throw new IllegalArgumentException("errUnwrap==null");
         if( hasValue )return value;
         return errUnwrap.apply(error);
+    }
+
+    /**
+     * Возвращает значение или генерирует {@link IllegalStateException}
+     * @return значение
+     */
+    public VALUE unwrap(){
+        if( hasValue )return value;
+        throw new IllegalStateException("result has value:"+error);
     }
 
     /**
@@ -212,15 +228,6 @@ public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
     }
 
     /**
-     * Синоним {@link #getOk()}
-     * @return Опциональное значение
-     */
-    @Deprecated
-    public Optional<VALUE> toOptional(){
-        return getOk();
-    }
-
-    /**
      * Свертка значения
      * @param succFold успешное значение
      * @param errFold ошибка
@@ -237,5 +244,21 @@ public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
     public String toString() {
         if( hasValue )return "ok{"+value+"}";
         return "err{"+error+"}";
+    }
+
+    /**
+     * Преобразование в either
+     * @return either значение
+     */
+    public Either<VALUE,ERROR> toEither(){
+        return fold( Either::left, Either::right );
+    }
+
+    /**
+     * Обмен местами значение-ошибка
+     * @return обмен местами
+     */
+    public Result<ERROR,VALUE> swap(){
+        return fold(Result::error, Result::ok);
     }
 }

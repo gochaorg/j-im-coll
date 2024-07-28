@@ -10,6 +10,15 @@ package xyz.cofe.coll.im;
  * @param <F> аргумент функции
  */
 public interface Consumer6<A,B,C,D,E,F> extends Fn6<A,B,C,D,E,F,Result.NoValue> {
+    /**
+     * Переда аргументов в функцию
+     * @param a 1ый аргумент функции
+     * @param b 2ой аргумент функции
+     * @param c 3ий аргумент функции
+     * @param d 4ый аргумент функции
+     * @param e 5ый аргумент функции
+     * @param f 6ой аргумент функции
+     */
     void accept(A a, B b, C c,D d,E e,F f);
 
     @Override

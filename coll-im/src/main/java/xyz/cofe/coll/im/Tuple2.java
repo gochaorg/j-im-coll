@@ -8,7 +8,7 @@ import java.util.Objects;
  * @param <A> тип 1‑го элемента
  * @param <B> тип 2‑го элемента
  */
-public sealed interface Tuple2<A, B> extends Serializable {
+public interface Tuple2<A, B> extends Serializable {
     /**
      * Возвращает 1ый элемент
      * @return 1ый элемент
@@ -42,10 +42,27 @@ public sealed interface Tuple2<A, B> extends Serializable {
         return Tuple3.of(_1(), _2(), c);
     }
 
+    /**
+     * Кортеж из 2 элементов
+     * @param <A> тип 1‑го элемента
+     * @param <B> тип 2‑го элемента
+     */
     final class Tuple2Impl<A, B> implements Tuple2<A, B> {
+        /**
+         * 1ый элемент
+         */
         public final A a;
+
+        /**
+         * 2ой элемент
+         */
         public final B b;
 
+        /**
+         * Конструктор
+         * @param a 1ый элемент
+         * @param b 2ой элемент
+         */
         public Tuple2Impl(A a, B b) {
             this.a = a;
             this.b = b;

@@ -13,6 +13,18 @@ package xyz.cofe.coll.im;
  * @param <I> аргумент функции
  */
 public interface Consumer9<A,B,C,D,E,F,G,H,I> extends Fn9<A,B,C,D,E,F,G,H,I,Result.NoValue> {
+    /**
+     * Переда аргументов в функцию
+     * @param a 1ый аргумент функции
+     * @param b 2ой аргумент функции
+     * @param c 3ий аргумент функции
+     * @param d 4ый аргумент функции
+     * @param e 5ый аргумент функции
+     * @param f 6ой аргумент функции
+     * @param g 7ой аргумент функции
+     * @param h 8ой аргумент функции
+     * @param i 9ый аргумент функции
+     */
     void accept(A a, B b, C c,D d,E e,F f,G g,H h,I i);
 
     @Override

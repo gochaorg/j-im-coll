@@ -1,14 +1,13 @@
 package xyz.cofe.coll.im.iter;
 
+import xyz.cofe.coll.im.Enumerated;
+
 import java.util.Iterator;
 
 public interface EachToEnum<A> extends Iterable<A> {
-    //TODO remove
-    public record EnumValue<A>( A value, int index ) {}
-
-    public static class EnumerateIterator<A> implements Iterator<EnumValue<A>> {
+    public static class EnumerateIterator<A> implements Iterator<Enumerated<A>> {
         private final Iterator<A> iterator;
-        private int index;
+        private long index;
 
         public EnumerateIterator(Iterator<A> iterator) {
             if( iterator==null ) throw new IllegalArgumentException("iterator==null");
@@ -22,21 +21,19 @@ public interface EachToEnum<A> extends Iterable<A> {
         }
 
         @Override
-        public EnumValue<A> next() {
+        public Enumerated<A> next() {
             if(iterator.hasNext()){
                 A value = iterator.next();
-                int idx = index;
+                long idx = index;
                 index++;
-                return new EnumValue<>(value, idx);
+                return new Enumerated<>(idx, value);
             }
             return null;
         }
     }
 
-    default Iterable<EnumValue<A>> enumerate(){
+    default Iterable<Enumerated<A>> enumerate(){
         var self = this;
-        return () -> {
-            return new EnumerateIterator<>( self.iterator() );
-        };
+        return () -> new EnumerateIterator<>( self.iterator() );
     }
 }

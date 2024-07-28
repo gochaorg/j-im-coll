@@ -7,6 +7,10 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Частичная реализация ImList
+ * @param <A> тип элемента
+ */
 public abstract class ImListLinkedBase<A>
     implements
     Prepend<ImList<A>, A>,
@@ -29,6 +33,11 @@ public abstract class ImListLinkedBase<A>
     private final ImListLinkedBase<A> next;
     private final int size;
 
+    /**
+     * Конструктор
+     * @param value значение
+     * @param next указатель на следующий, допускается null
+     */
     protected ImListLinkedBase(A value, ImListLinkedBase<A> next) {
         this.value = value;
         this.next = next;
@@ -54,6 +63,7 @@ public abstract class ImListLinkedBase<A>
      * @param value значение
      * @param next  ссылка на следующий элемент
      * @return список
+     * @param <B> тип элемента списка
      */
     protected abstract <B> ImListLinkedBase<B> selfConstructor(B value, ImListLinkedBase<B> next);
 
@@ -236,20 +246,17 @@ public abstract class ImListLinkedBase<A>
     }
 
     //@Override
-    public ImList<A> prependUnordered(PositionalRead<A> values) {
-        if (values == null) throw new IllegalArgumentException("values==null");
-
-        Object[] res = new Object[]{this};
-        values.each(a -> {
-            var r = (ImListLinkedBase<A>) res[0];
-            res[0] = r.prepend(a);
-        });
-        return (ImListLinkedBase<A>) res[0];
-    }
-
+    /**
+     * Итератор по списку
+     * @param <A> тип элемента списка
+     */
     public static class ImListLinkedIterator<A> implements Iterator<A> {
         private ImListLinkedBase<A> imList;
 
+        /**
+         * Конструктор
+         * @param imList список
+         */
         public ImListLinkedIterator(
             ImListLinkedBase<A> imList
         ) {

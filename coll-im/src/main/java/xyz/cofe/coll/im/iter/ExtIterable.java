@@ -1,6 +1,7 @@
 package xyz.cofe.coll.im.iter;
 
 import xyz.cofe.coll.im.ImList;
+import xyz.cofe.coll.im.Product;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +10,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface ExtIterable<E> extends Iterable<E>, EachToMap<E>, EachToEnum<E> {
+public interface ExtIterable<E> extends Iterable<E>, EachToMap<E>, EachToEnum<E>,
+                                        Product<E> {
     default <B> ExtIterable<B> fmap(Function<E, Iterator<B>> map) {
         return () -> {
             return new FMapIterator<E,B>( iterator(), map );

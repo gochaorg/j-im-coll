@@ -8,5 +8,9 @@ import java.util.function.Supplier;
  * @param <RES> результат функции
  */
 public interface Fn0<RES> extends Serializable, Supplier<RES> {
+    /**
+     * Вызов функции
+     * @return результат вызова функции
+     */
     RES apply();
 }

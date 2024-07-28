@@ -14,5 +14,16 @@ import java.io.Serializable;
  * @param <RES> результат функции
  */
 public interface Fn7<A,B,C,D,E,F,G,RES> extends Serializable {
+    /**
+     * Вызов функции
+     * @param a 1ый аргумент функции
+     * @param b 2ой аргумент функции
+     * @param c 3ий аргумент функции
+     * @param d 4ый аргумент функции
+     * @param e 5ый аргумент функции
+     * @param f 6ой аргумент функции
+     * @param g 7ой аргумент функции
+     * @return результат вызова функции
+     */
     RES apply(A a, B b, C c,D d,E e,F f,G g);
 }

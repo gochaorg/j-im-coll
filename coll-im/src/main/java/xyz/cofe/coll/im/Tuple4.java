@@ -10,7 +10,7 @@ import java.util.Objects;
  * @param <C> тип 3‑го элемента
  * @param <D> тип 4‑го элемента
  */
-public sealed interface Tuple4<A,B,C,D> extends Serializable {
+public interface Tuple4<A,B,C,D> extends Serializable {
     /**
      * Возвращает 1ый элемент
      * @return 1ый элемент
@@ -56,12 +56,41 @@ public sealed interface Tuple4<A,B,C,D> extends Serializable {
         return Tuple5.of(_1(), _2(), _3(), _4(), e);
     }
 
+    /**
+     * Кортеж из 4 элементов
+     * @param <A> тип 1‑го элемента
+     * @param <B> тип 2‑го элемента
+     * @param <C> тип 3‑го элемента
+     * @param <D> тип 4‑го элемента
+     */
     final class Tuple4Impl<A,B,C,D> implements Tuple4<A,B,C,D> {
+        /**
+         * 1ый элемент
+         */
         public final A a;
+
+        /**
+         * 2ой элемент
+         */
         public final B b;
+
+        /**
+         * 3ий элемент
+         */
         public final C c;
+
+        /**
+         * 4ый элемент
+         */
         public final D d;
 
+        /**
+         * Конструктор
+         * @param a 1ый элемент
+         * @param b 2ой элемент
+         * @param c 3ий элемент
+         * @param d 4ый элемент
+         */
         public Tuple4Impl(A a, B b, C c, D d) {
             this.a = a;
             this.b = b;

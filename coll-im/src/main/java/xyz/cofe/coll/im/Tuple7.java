@@ -13,7 +13,7 @@ import java.util.Objects;
  * @param <F> тип 6‑го элемента
  * @param <H> тип 7‑го элемента
  */
-public sealed interface Tuple7<A,B,C,D,E,F,H> extends Serializable {
+public interface Tuple7<A,B,C,D,E,F,H> extends Serializable {
     /**
      * Возвращает 1ый элемент
      * @return 1ый элемент
@@ -77,15 +77,62 @@ public sealed interface Tuple7<A,B,C,D,E,F,H> extends Serializable {
         return Tuple8.of(_1(), _2(), _3(), _4(), _5(), _6(), _7(), g);
     }
 
+    /**
+     * Кортеж из 7 элементов
+     * @param <A> тип 1‑го элемента
+     * @param <B> тип 2‑го элемента
+     * @param <C> тип 3‑го элемента
+     * @param <D> тип 4‑го элемента
+     * @param <E> тип 5‑го элемента
+     * @param <F> тип 6‑го элемента
+     * @param <H> тип 7‑го элемента
+     */
     final class Tuple7Impl<A,B,C,D,E,F,H> implements Tuple7<A,B,C,D,E,F,H> {
+        /**
+         * 1ый элемент
+         */
         public final A a;
+
+        /**
+         * 2ой элемент
+         */
         public final B b;
+
+        /**
+         * 3ий элемент
+         */
         public final C c;
+
+        /**
+         * 4ый элемент
+         */
         public final D d;
+
+        /**
+         * 5ый элемент
+         */
         public final E e;
+
+        /**
+         * 6ой элемент
+         */
         public final F f;
+
+        /**
+         * 7ой элемент
+         */
         public final H h;
 
+        /**
+         * Конструктор
+         * @param a 1ый элемент
+         * @param b 2ой элемент
+         * @param c 3ий элемент
+         * @param d 4ый элемент
+         * @param e 5ый элемент
+         * @param f 6ой элемент
+         * @param h 7ой элемент
+         */
         public Tuple7Impl(A a, B b, C c, D d, E e, F f,H h) {
             this.a = a;
             this.b = b;

@@ -1,6 +1,15 @@
 package xyz.cofe.coll.im;
 
+/**
+ * Реализация списка в виде linked list
+ * @param <A> тип элемента списка
+ */
 public class ImListLinked<A> extends ImListLinkedBase<A> {
+    /**
+     * Конструктор
+     * @param value голова списка
+     * @param next следующий список, допускается null
+     */
     public ImListLinked(A value, ImListLinkedBase<A> next) {
         super(value, next);
     }
@@ -46,6 +55,12 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
         return (ImListLinked<A>)super.append(values);
     }
 
+    /**
+     * Создание списка из указанных значений
+     * @param values значения списка
+     * @return список
+     * @param <A> тип элемента списка
+     */
     @SafeVarargs
     public static <A> ImListLinked<A> of(A ... values ){
         var lst = new ImListLinked<A>( null, null );
@@ -55,6 +70,12 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
         return lst.reverse();
     }
 
+    /**
+     * Создание списка из указанных значений
+     * @param values значения списка
+     * @return список
+     * @param <A> тип элемента списка
+     */
     public static <A> ImListLinked<A> from( Iterable<A> values ) {
         if( values==null )throw new IllegalArgumentException("values==null");
         var lst = new ImListLinked<A>( null, null );
@@ -64,6 +85,12 @@ public class ImListLinked<A> extends ImListLinkedBase<A> {
         return lst.reverse();
     }
 
+    /**
+     * Создание списка из указанных значений
+     * @param values значения списка
+     * @return список
+     * @param <A> тип элемента списка
+     */
     public static <A> ImListLinked<A> from( PositionalRead<A> values ) {
         if( values==null )throw new IllegalArgumentException("values==null");
         var lst = new ImListLinked<A>( null, null );

@@ -10,5 +10,11 @@ import java.util.function.BiFunction;
  * @param <RES> результат функции
  */
 public interface Fn2<A,B,RES> extends Serializable, BiFunction<A,B,RES> {
+    /**
+     * Вызов функции
+     * @param a 1ый аргумент функции
+     * @param b 2ой аргумент функции
+     * @return результат вызова функции
+     */
     RES apply(A a, B b);
 }
