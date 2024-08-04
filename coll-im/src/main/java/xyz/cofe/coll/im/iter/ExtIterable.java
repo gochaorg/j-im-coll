@@ -244,7 +244,7 @@ public interface ExtIterable<A> extends Iterable<A>,
     /**
      * Бесконечная индукция
      * <pre>
-     * var expect = new ArrayList<>(List.of(1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+     * var expect = new ArrayList&lt;&gt;(List.of(1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
      * for (var n : ExtIterable.induction(1, 1, (a, b) -> a + b).take(10)) {
      *     System.out.println(n);
      *     var e = expect.remove(0);

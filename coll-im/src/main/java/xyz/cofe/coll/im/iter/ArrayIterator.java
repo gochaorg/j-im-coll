@@ -2,7 +2,17 @@ package xyz.cofe.coll.im.iter;
 
 import java.util.Iterator;
 
+/**
+ * Итератор по массиву
+ * @param <A> Элемент массива
+ */
 public class ArrayIterator<A> implements Iterator<A> {
+    /**
+     * Создание итератора
+     * @param values массив
+     * @return итератор
+     * @param <A> Элемент массива
+     */
     public static <A> ExtIterable<A> iterate(A[] values){
         return ()->new ArrayIterator<>(values);
     }
@@ -10,6 +20,11 @@ public class ArrayIterator<A> implements Iterator<A> {
     private final A[] values;
     private int ptr = 0;
 
+    /**
+     * Создание итератора
+     * @param values массив
+     * @param ptr с какого элемента начать
+     */
     public ArrayIterator(A[] values, int ptr) {
         if( values==null ) throw new IllegalArgumentException("values==null");
         if( ptr<0 ) throw new IllegalArgumentException("ptr<0");

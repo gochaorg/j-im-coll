@@ -166,13 +166,13 @@ public interface ImList<A>
      * var res = ImList.of("a","b","c").enumerate();
      * assertTrue(res.size()==3);
      * assertTrue(
-     *   res.get(0).map(v-&gt;v.index()==0 &&
+     *   res.get(0).map(v-&gt;v.index()==0 &amp;&amp;
      *   v.value().equals("a")).orElse(false));
      * assertTrue(
-     *   res.get(1).map(v-&gt;v.index()==1 &&
+     *   res.get(1).map(v-&gt;v.index()==1 &amp;&amp;
      *   v.value().equals("b")).orElse(false));
      * assertTrue(
-     *   res.get(2).map(v-&gt;v.index()==2 &&
+     *   res.get(2).map(v-&gt;v.index()==2 &amp;&amp;
      *   v.value().equals("c")).orElse(false));
      * </pre>
      * @return список
