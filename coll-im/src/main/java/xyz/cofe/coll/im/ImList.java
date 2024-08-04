@@ -60,7 +60,11 @@ public interface ImList<A>
 
     /**
      * Проверка наличия указанных элементов
-     *
+     * <pre>
+     * var lst = ImList.of(1,2,2,3,3,3);
+     * var res = lst.containsCount(Integer::equals,ImList.of(2,3));
+     * assertTrue(res == 5);
+     * </pre>
      * @param equals функция проверки на равенство
      * @param items  искомые элементы
      * @return кол-во совпавших
@@ -82,7 +86,11 @@ public interface ImList<A>
 
     /**
      * Проверка наличия указанных элементов
-     *
+     * <pre>
+     * var lst = ImList.of(1,2,3);
+     * var res = lst.containsAll(1,2);
+     * assertTrue(res == true);
+     * </pre>
      * @param items искомые элементы
      * @return true - указанные элементы есть в списке / false - указанные элементы отсутствуют или присутствуют в не полном объеме
      */
@@ -94,7 +102,11 @@ public interface ImList<A>
 
     /**
      * Проверка наличия указанных элементов
-     *
+     * <pre>
+     * var lst = ImList.of(1,2,3);
+     * var res = lst.containsAll(1,2,4);
+     * assertTrue(res == false);
+     * </pre>
      * @param items искомые элементы
      * @return true - указанные элементы есть в списке / false - указанные элементы отсутствуют или присутствуют в не полном объеме
      */
@@ -110,6 +122,7 @@ public interface ImList<A>
      *
      * @param items искомые элементы
      * @return true - указанные элементы есть в списке / false - указанные элементы отсутствуют или присутствуют в не полном объеме
+     * @see #containsAll(Object[])
      */
     default boolean containsAll(Iterable<A> items) {
         if (items == null) throw new IllegalArgumentException("items==null");
@@ -120,7 +133,10 @@ public interface ImList<A>
 
     /**
      * Поиск элемента
-     *
+     * <pre>
+     * var res = ImList.of(1,2,3).find(v -&gt; v&gt;2);
+     * assertTrue(res.get() == 3);
+     * </pre>
      * @param predicate искомый элемент
      * @return искомый элемент или None
      */
@@ -131,7 +147,13 @@ public interface ImList<A>
 
     /**
      * Разворот списка
-     *
+     * <pre>
+     * var res = ImList.of(1,2,3).reverse();
+     * assertTrue(res.size()==3);
+     * assertTrue(res.get(0).map(v-&gt;v==3).orElse(false));
+     * assertTrue(res.get(1).map(v-&gt;v==2).orElse(false));
+     * assertTrue(res.get(2).map(v-&gt;v==1).orElse(false));     
+     * </pre>
      * @return список в обратном порядке
      */
     default ImList<A> reverse() {
@@ -140,7 +162,19 @@ public interface ImList<A>
 
     /**
      * Перечислить/нумеровать элементы списка
-     *
+     * <pre>
+     * var res = ImList.of("a","b","c").enumerate();
+     * assertTrue(res.size()==3);
+     * assertTrue(
+     *   res.get(0).map(v-&gt;v.index()==0 &&
+     *   v.value().equals("a")).orElse(false));
+     * assertTrue(
+     *   res.get(1).map(v-&gt;v.index()==1 &&
+     *   v.value().equals("b")).orElse(false));
+     * assertTrue(
+     *   res.get(2).map(v-&gt;v.index()==2 &&
+     *   v.value().equals("c")).orElse(false));
+     * </pre>
      * @return список
      */
     default ImList<Enumerated<A>> enumerate() {
@@ -191,6 +225,12 @@ public interface ImList<A>
 
     /**
      * Возвращает указанное кол-во элементов или меньше (сколько есть)
+     * <pre>
+     * var res = ImList.of(1,2,3).take(2);
+     * assertTrue(res.size()==2);
+     * assertTrue(res.get(0).map(v-&gt;v==1).orElse(false));
+     * assertTrue(res.get(1).map(v-&gt;v==2).orElse(false));    
+     * </pre>
      * @param count кол-во элементов
      * @return список
      */
@@ -211,6 +251,12 @@ public interface ImList<A>
 
     /**
      * Возвращает элементы, пропуская указанное кол-во с начала
+     * <pre>
+     * var lst = ImList.of(1,2,3);
+     * var res = lst.skip(2);
+     * assertTrue(res.size()==1);
+     * assertTrue(res.get(0).map(v-&gt;v==3).orElse(false));    
+     * </pre>
      * @param count кол-во пропускаемых элементов
      * @return список
      */
@@ -230,5 +276,20 @@ public interface ImList<A>
                     ? Tuple2.of(tup._1()-1, tup._2().prepend(it))
                     : tup
         )._2();
+    }
+
+    /**
+     * Создание декартового произведения
+     * @param right правое значение
+     * @return Итератор
+     * @param <B> Тип правого значения
+     */
+    default <B> ImList<Prod<A,B>> product(Iterable<B> right){
+        if( right==null ) throw new IllegalArgumentException("right==null");
+        var result = ImList.<Prod<A,B>>of();
+        for( var prod : Product.product(this, right)){
+            result = result.prepend(prod);
+        }
+        return result.reverse();
     }
 }

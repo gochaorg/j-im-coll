@@ -85,12 +85,12 @@ public final class Result<VALUE,ERROR> implements ForEach<VALUE> {
     /**
      * Возвращает ошибку
      * @param e ошибка
-     * @param errType тип ошибки
+     * @param okType тип результата
      * @return результат
      * @param <V> тип результата
      * @param <E> тип ошибки
      */
-    public static <V,E> Result<V,E> error(E e, Class<E> errType){
+    public static <V,E> Result<V,E> error(E e, Class<V> okType){
         return new Result<>(null, e, false);
     }
 

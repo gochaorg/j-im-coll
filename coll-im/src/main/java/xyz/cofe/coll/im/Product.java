@@ -110,19 +110,4 @@ public interface Product<A> extends Iterable<A> {
         if (right == null) throw new IllegalArgumentException("right==null");
         return () -> new ProdIterator<>(left, right);
     }
-
-    /**
-     * Создание декартового произведения
-     * @param right правое значение
-     * @return Итератор
-     * @param <B> Тип правого значения
-     */
-    default <B> ImList<Prod<A,B>> product(Iterable<B> right){
-        if( right==null ) throw new IllegalArgumentException("right==null");
-        var result = ImList.<Prod<A,B>>of();
-        for( var prod : product(this, right)){
-            result = result.prepend(prod);
-        }
-        return result.reverse();
-    }
 }

@@ -32,7 +32,7 @@ public interface EachToEnum<A> extends Iterable<A> {
         }
     }
 
-    default Iterable<Enumerated<A>> enumerate(){
+    default ExtIterable<Enumerated<A>> enumerate(){
         var self = this;
         return () -> new EnumerateIterator<>( self.iterator() );
     }

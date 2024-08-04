@@ -19,13 +19,4 @@ public interface Prepend<SELF,A> {
      * @return список с добавленными элементами
      */
     SELF prepend(PositionalRead<? extends A> values);
-
-    /**
-     * Добавление элементов в начало списка,
-     * добавляемые элементы могут быть в любом порядке/
-     * Данный метод
-     * @param values элементы
-     * @return список с добавленными элементами
-     */
-//    SELF prependUnordered(PositionalRead<A> values);
 }
