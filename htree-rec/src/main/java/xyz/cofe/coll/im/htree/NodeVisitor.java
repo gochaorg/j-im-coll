@@ -6,9 +6,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -56,6 +58,7 @@ import java.util.stream.Stream;
  * </ul>
  */
 public class NodeVisitor {
+    private List<Function<ImList<Nest.PathNode>,UpdateResult>> updateByPath = new ArrayList<>();
     private Map<Class<?>, Function<Object, Object>> oneArgUpdate = new HashMap<>();
     private Set<Class<?>> oneArgUpdateSkipped = new HashSet<>();
 
@@ -94,22 +97,34 @@ public class NodeVisitor {
                     var rawType = pt.getRawType();
                     var typeArgs = pt.getActualTypeArguments();
                     if (rawType.getTypeName().equals(ImList.class.getName()) && typeArgs.length == 1 && typeArgs[0].getTypeName().equals(Nest.PathNode.class.getName())) {
-                        var consumers = pathConsumers;
-                        if (method.getName().equalsIgnoreCase("enter")) {
-                            consumers = pathConsumersEnter;
-                        }
-
-                        consumers.add(path -> {
-                            if (method.trySetAccessible()) {
+                        if( method.getReturnType()== UpdateResult.class ){
+                            method.setAccessible(true);
+                            updateByPath.add( path -> {
                                 try {
-                                    method.invoke(visitor, path);
+                                    var res = method.invoke(visitor, path);
+                                    return (UpdateResult) res;
                                 } catch (IllegalAccessException | InvocationTargetException e) {
                                     throw new RuntimeException(e);
                                 }
+                            });
+                        }else {
+                            var consumers = pathConsumers;
+                            if (method.getName().equalsIgnoreCase("enter")) {
+                                consumers = pathConsumersEnter;
                             }
-                        });
 
-                        return;
+                            consumers.add(path -> {
+                                if (method.trySetAccessible()) {
+                                    try {
+                                        method.invoke(visitor, path);
+                                    } catch (IllegalAccessException | InvocationTargetException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            });
+
+                            return;
+                        }
                     }
                 }
 
@@ -187,6 +202,13 @@ public class NodeVisitor {
     public UpdateResult update(ImList<Nest.PathNode> path) {
         var h = path.head();
         if (h.isPresent()) {
+            for( var updater : updateByPath ){
+                var updateRes = updater.apply(path);
+                if( updateRes instanceof UpdateResult.Updated upd ){
+                    return upd;
+                }
+            }
+
             var node = h.get();
             var value = node.pathValue();
             if (value != null) {

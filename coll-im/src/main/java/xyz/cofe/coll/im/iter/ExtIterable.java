@@ -54,6 +54,16 @@ public interface ExtIterable<A> extends Iterable<A>,
     }
 
     /**
+     * Возвращает первый элемент
+     * @return первый элемент
+     */
+    default Optional<A> first(){
+        var itr = iterator();
+        if( itr.hasNext() )return Optional.ofNullable(itr.next());
+        return Optional.empty();
+    }
+
+    /**
      * Отображение коллекции, с возможностью вырезания и вставки.
      * <pre>
      *  var lst = ExtIterable.of(1, 2, 3).fmap(v -&gt;

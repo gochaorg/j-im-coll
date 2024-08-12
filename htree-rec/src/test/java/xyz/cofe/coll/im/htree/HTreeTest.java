@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings({"SimplifiableAssertion", "OptionalGetWithoutIsPresent"})
 public class HTreeTest {
     public sealed interface Node {
     }
@@ -187,12 +188,48 @@ public class HTreeTest {
             )),
             new Object(){
                 void enter(ImList<Nest.PathNode> path) {
-                    System.out.println("enter " + ">>> ".repeat(path.size()) + path.head().get());
+                    System.out.println("enter  " + ">>> ".repeat(path.size()) + path.head().get());
+                    System.out.println("  path > "+PathId.from(path).path());
                 }
                 void exit(ImList<Nest.PathNode> path) {
-                    System.out.println("exit  " + "<<< ".repeat(path.size()) + path.head().get());
+                    System.out.println("  path < "+PathId.from(path).path());
+                    System.out.println("exit   " + "<<< ".repeat(path.size()) + path.head().get());
                 }
             }
         );
+    }
+
+    @Test
+    public void updateByPath(){
+        var updated = HTree.visit(
+            new NodeE(ImList.of(
+                new NodeF(Optional.empty()),
+                new NodeF(Optional.of(new NodeC(1, new NodeA())))
+            )),
+            new Object(){
+                UpdateResult path(ImList<Nest.PathNode> path){
+                    System.out.println("path "+path);
+
+                    var recOpt = path.head().flatMap( pn -> pn instanceof RecordNest.RecordIt r ? Optional.of(r) : Optional.empty() );
+                    if( recOpt.isEmpty() )return UpdateResult.NoUpdate.instance;
+
+                    var recIt = recOpt.get();
+                    if( recIt.getRecordClass() == NodeC.class ){
+                        if( recIt.getRecordComponent().getName().equals("b") ){
+                            return new UpdateResult.Updated( 2 );
+                        }
+                    }
+
+                    return UpdateResult.NoUpdate.instance;
+                }
+            }
+        );
+
+        System.out.println();
+        System.out.println(updated);
+
+        var nodeF = (NodeF)((NodeE) updated).nodes().get(1).get();
+        var nodeC = (NodeC)nodeF.node().get();
+        assertTrue(nodeC.b() == 2);
     }
 }

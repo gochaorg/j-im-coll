@@ -49,6 +49,37 @@ import java.util.Optional;
  *     }
  * })
  * </pre>
+ * 
+ * Обновлять можно используя путь
+ * 
+ * <pre>
+ * var updated = HTree.visit(
+ *     new NodeE(ImList.of(
+ *         new NodeF(Optional.empty()),
+ *         new NodeF(Optional.of(new NodeC(1, new NodeA())))
+ *     )),
+ *     new Object(){
+ *         UpdateResult path(ImList&lt;Nest.PathNode&gt; path){
+ *             var recOpt = path.head().flatMap( pn -&gt;
+ *                pn instanceof RecordNest.RecordIt r
+ *                ? Optional.of(r)
+ *                : Optional.empty() );
+ *
+ *             if( recOpt.isEmpty() )
+ *                 return UpdateResult.NoUpdate.instance;
+ *
+ *             var recIt = recOpt.get();
+ *             if( recIt.getRecordClass() == NodeC.class ){
+ *                 if( recIt.getRecordComponent().getName().equals("b") ){
+ *                     return new UpdateResult.Updated( 2 );
+ *                 }
+ *             }
+ *
+ *             return UpdateResult.NoUpdate.instance;
+ *         }
+ *     }
+ * );    
+ * </pre>
  */
 public class HTree {
     private static Optional<Nest> nestOf(Object root) {
