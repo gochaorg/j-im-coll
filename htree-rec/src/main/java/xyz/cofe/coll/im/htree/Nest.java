@@ -58,7 +58,7 @@ public sealed interface Nest permits ImListNest,
      */
     record RootPathNode(Object pathValue) implements PathNode {
         @Override
-        public PathNode withPathValue(Object value) {
+        public RootPathNode withPathValue(Object value) {
             return new RootPathNode(value);
         }
     }

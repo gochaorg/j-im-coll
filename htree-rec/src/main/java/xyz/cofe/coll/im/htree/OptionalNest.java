@@ -73,7 +73,7 @@ public final class OptionalNest implements Nest {
         }
 
         @Override
-        public PathNode withPathValue(Object value) {
+        public OptionalValue withPathValue(Object value) {
             return new OptionalValue(value, null);
         }
 

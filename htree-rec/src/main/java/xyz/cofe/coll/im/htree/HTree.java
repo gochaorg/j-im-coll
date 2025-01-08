@@ -131,7 +131,7 @@ public class HTree {
 
     private static <A> A visit(A root, ImList<Nest.PathNode> path, NodeVisitor nodeVisitor) {
         if (path == null) throw new IllegalArgumentException("path==null");
-        if (path.size() < 1) throw new IllegalArgumentException("path.size() < 1");
+        if (path.isEmpty()) throw new IllegalArgumentException("path.size() < 1");
 
         nodeVisitor.enter(path);
 

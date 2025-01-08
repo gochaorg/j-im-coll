@@ -37,6 +37,18 @@ public sealed interface Either<A, B> {
     }
 
     /**
+     * Создание "левого" значения
+     * @param a значение
+     * @param bType Тип правого значения
+     * @return левое значение
+     * @param <A> Тип левого значения
+     * @param <B> Тип правого значения
+     */
+    public static <A, B> Either<A, B> left(A a, Class<B> bType) {
+        return new Left<>(a);
+    }
+
+    /**
      * Создание "правое" значения
      * @param b значение
      * @return правое значение
@@ -44,6 +56,18 @@ public sealed interface Either<A, B> {
      * @param <B> Тип правого значения
      */
     public static <A, B> Either<A, B> right(B b) {
+        return new Right<>(b);
+    }
+
+    /**
+     * Создание "правое" значения
+     * @param b значение
+     * @param aType Тип левого значения
+     * @return правое значение
+     * @param <A> Тип левого значения
+     * @param <B> Тип правого значения
+     */
+    public static <A, B> Either<A, B> right(B b,Class<A> aType) {
         return new Right<>(b);
     }
 

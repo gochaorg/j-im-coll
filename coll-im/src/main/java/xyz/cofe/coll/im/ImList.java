@@ -119,6 +119,20 @@ public interface ImList<A>
 
     /**
      * Проверка наличия указанных элементов
+     * <pre>
+     * var lst = ImList.of(1,2,3);
+     * var res = lst.contains(4);
+     * assertTrue(res == false);
+     * </pre>
+     * @param item искомый элемент
+     * @return true - указанный элементы есть в списке / false - указанные элементы отсутствуют или присутствуют в не полном объеме
+     */
+    default boolean contains(A item){
+        return containsAll(item);
+    }
+
+    /**
+     * Проверка наличия указанных элементов
      *
      * @param items искомые элементы
      * @return true - указанные элементы есть в списке / false - указанные элементы отсутствуют или присутствуют в не полном объеме
@@ -143,6 +157,16 @@ public interface ImList<A>
     default Optional<A> find(Function<A, Boolean> predicate) {
         if (predicate == null) throw new IllegalArgumentException("predicate==null");
         return filter(predicate).head();
+    }
+
+    /**
+     * Проверка наличия элемента
+     * @param predicate искомый элемент
+     * @return true - искомый элемент найден
+     */
+    default boolean exists(Function<A, Boolean> predicate) {
+        if( predicate==null ) throw new IllegalArgumentException("predicate==null");
+        return find(predicate).isPresent();
     }
 
     /**
@@ -276,6 +300,21 @@ public interface ImList<A>
                     ? Tuple2.of(tup._1()-1, tup._2().prepend(it))
                     : tup
         )._2();
+    }
+
+    /**
+     * Возвращает элементы, кроме последних указанных
+     * @param count кол-во пропускаемых элементов
+     * @return список кроме указанных последних
+     */
+    default ImList<A> dropLast(long count){
+        if( count<0 ) throw new IllegalArgumentException("count<0");
+        if( count==0 )return this;
+
+        long t = size() - count;
+        if( t<=0 )return ImList.of();
+
+        return take(t);
     }
 
     /**

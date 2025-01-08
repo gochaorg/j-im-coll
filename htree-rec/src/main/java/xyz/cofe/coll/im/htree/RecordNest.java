@@ -134,7 +134,7 @@ public final class RecordNest implements Nest {
         }
 
         @Override
-        public PathNode withPathValue(Object value) {
+        public RecordIt withPathValue(Object value) {
             return new RecordIt(recordValue,recordClass,value,recordComponent,recordField);
         }
 

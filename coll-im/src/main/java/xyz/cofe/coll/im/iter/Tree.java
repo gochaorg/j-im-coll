@@ -30,11 +30,11 @@ public class Tree<A> implements Iterator<TreePath<A>> {
         return new TreeBuild<>(ImList.of(a));
     }
 
-    public static <A> TreeBuild<A> root(A... a) {
+    public static <A> TreeBuild<A> roots(A... a) {
         return new TreeBuild<>(ImList.from(Arrays.asList(a)));
     }
 
-    public static <A> TreeBuild<A> root(Iterable<A> roots) {
+    public static <A> TreeBuild<A> roots(Iterable<A> roots) {
         if (roots == null) throw new IllegalArgumentException("roots==null");
         return new TreeBuild<>(roots);
     }

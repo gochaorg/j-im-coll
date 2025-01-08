@@ -78,7 +78,7 @@ public final class ImListNest implements Nest {
         }
 
         @Override
-        public PathNode withPathValue(Object value) {
+        public ImListItValue withPathValue(Object value) {
             return new ImListItValue(value,index,(_skip1,_skip2)->{});
         }
 

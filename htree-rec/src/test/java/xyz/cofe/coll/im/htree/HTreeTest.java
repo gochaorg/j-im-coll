@@ -172,8 +172,10 @@ public class HTreeTest {
         HTree.visit(n6, new Object() {
             void enter(ImList<Nest.PathNode> path) {
                 System.out.println("enter " + ">>> ".repeat(path.size()) + path.head().get());
+                System.out.println("  path > "+PathId.from(path));
             }
             void show(ImList<Nest.PathNode> path) {
+                System.out.println("  path < "+PathId.from(path));
                 System.out.println("exit  " + ">>> ".repeat(path.size()) + path.head().get());
             }
         });
@@ -189,10 +191,10 @@ public class HTreeTest {
             new Object(){
                 void enter(ImList<Nest.PathNode> path) {
                     System.out.println("enter  " + ">>> ".repeat(path.size()) + path.head().get());
-                    System.out.println("  path > "+PathId.from(path).path());
+                    System.out.println("  path > "+PathId.from(path));
                 }
                 void exit(ImList<Nest.PathNode> path) {
-                    System.out.println("  path < "+PathId.from(path).path());
+                    System.out.println("  path < "+PathId.from(path));
                     System.out.println("exit   " + "<<< ".repeat(path.size()) + path.head().get());
                 }
             }
